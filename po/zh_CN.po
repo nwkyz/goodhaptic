@@ -1,0 +1,84 @@
+# Chinese (Simplified) translations for Good Haptic.
+# Copyright (C) 2026 nwkyz
+# This file is distributed under the GPL-3.0+ license.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: goodhaptic 1.0\n"
+"Report-Msgid-Bugs-To: info@mail.nwyz.eu.org\n"
+"POT-Creation-Date: 2026-07-06 15:38+0800\n"
+"PO-Revision-Date: 2026-07-06 15:45+0800\n"
+"Last-Translator: nwkyz <info@mail.nwyz.eu.org>\n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/window.c:171 src/window.c:540
+msgid "设备"
+msgstr "设备"
+
+#: src/window.c:187
+msgid "未发现设备"
+msgstr "未发现设备"
+
+#: src/window.c:221
+msgid "轻"
+msgstr "轻"
+
+#: src/window.c:221
+msgid "中"
+msgstr "中"
+
+#: src/window.c:221
+msgid "重"
+msgstr "重"
+
+#: src/window.c:221
+msgid "非常重"
+msgstr "非常重"
+
+#: src/window.c:309
+msgid "振动"
+msgstr "振动"
+
+#: src/window.c:328 src/window.c:349
+msgid "力度"
+msgstr "力度"
+
+#: src/window.c:385
+msgid "系统"
+msgstr "系统"
+
+#: src/window.c:394
+msgid "开机恢复力度"
+msgstr "开机恢复力度"
+
+#: src/window.c:396
+msgid "启动时自动将力度写入硬件，防止重启后恢复默认值"
+msgstr "启动时自动将力度写入硬件，防止重启后恢复默认值"
+
+#: src/window.c:427 src/window.c:507
+msgid "首选项"
+msgstr "首选项"
+
+#: src/window.c:431
+msgid "调节"
+msgstr "调节"
+
+#: src/window.c:440
+msgid "无级调节"
+msgstr "无级调节"
+
+#: src/window.c:442
+msgid "无级调节对于某些设备不起作用"
+msgstr "无级调节对于某些设备不起作用"
+
+#: src/window.c:462 src/window.c:495
+msgid "Good Haptic"
+msgstr "Good Haptic"
+
+#: src/window.c:508
+msgid "关于"
+msgstr "关于"

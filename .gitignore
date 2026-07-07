@@ -1,0 +1,20 @@
+# Meson build output
+build/
+uninstall/
+
+# DEB packaging output
+deb-build/
+
+# Debian packaging staging (leftovers from deb build)
+debian/goodhaptic/
+debian/files
+debian/.debhelper/
+debian/*.debhelper.log
+debian/*.substvars
+
+# Editors / OS
+.vscode/
+*~
+*.swp
+*.swo
+.DS_Store

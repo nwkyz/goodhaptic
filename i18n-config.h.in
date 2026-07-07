@@ -1,0 +1,4 @@
+#pragma once
+
+#define GETTEXT_PACKAGE @GETTEXT_PACKAGE@
+#define LOCALEDIR       @LOCALEDIR@

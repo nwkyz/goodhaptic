@@ -1,0 +1,12 @@
+[Unit]
+Description=Good Haptic daemon
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=@libexecdir@/goodhapticd
+RuntimeDirectory=goodhaptic
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,90 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-06 15:38+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:171
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:540
+msgid "设备"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:187
+msgid "未发现设备"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+msgid "轻"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+msgid "中"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+msgid "重"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+msgid "非常重"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:309
+msgid "振动"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:328
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:349
+msgid "力度"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:385
+msgid "系统"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:394
+msgid "开机恢复力度"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:396
+msgid "启动时自动将力度写入硬件，防止重启后恢复默认值"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:427
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:507
+msgid "首选项"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:431
+msgid "调节"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:440
+msgid "无级调节"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:442
+msgid "无级调节对于某些设备不起作用"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:462
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:495
+msgid "Good Haptic"
+msgstr ""
+
+#: /home/exhyz/Downloads/goodhaptic/src/window.c:508
+msgid "关于"
+msgstr ""

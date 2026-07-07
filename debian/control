@@ -1,0 +1,29 @@
+Source: goodhaptic
+Section: utils
+Priority: optional
+Maintainer: nwkyz <info@mail.nwyz.eu.org>
+Build-Depends:
+ debhelper-compat (= 13),
+ meson (>= 1.0),
+ libgtk-4-dev (>= 4.10),
+ libadwaita-1-dev (>= 1.4),
+Standards-Version: 4.7.0
+Homepage: https://github.com/nwkyz/goodhaptic
+Rules-Requires-Root: no
+
+Package: goodhaptic
+Architecture: linux-any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ libgtk-4-1,
+ libadwaita-1-0,
+Description: Touchpad haptic feedback control tool
+ Good Haptic is a GTK4/Libadwaita application for controlling
+ Goodix GXTP5100 touchpad haptic feedback strength.
+ .
+ Features:
+  - Auto-detection of hidraw haptic devices
+  - Preset strength levels and stepless slider control
+  - System service for boot-time strength restoration
+  - Per-session password authentication

@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        gtk-update-icon-cache -f /usr/share/icons/hicolor 2>/dev/null || true
+        systemctl daemon-reload 2>/dev/null || true
+        systemctl enable goodhapticd 2>/dev/null || true
+        systemctl start goodhapticd 2>/dev/null || true
+        ;;
+esac

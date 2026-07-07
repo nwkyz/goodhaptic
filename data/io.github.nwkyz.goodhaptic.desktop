@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Good Haptic
+Comment=Control touchpad vibration strength
+Exec=goodhaptic
+Terminal=false
+Type=Application
+Categories=Settings;
+StartupNotify=true
+Icon=io.github.nwkyz.goodhaptic
