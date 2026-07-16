@@ -1,90 +1,185 @@
 # English translations for Good Haptic.
-# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# Automatically generated, 2026.
+# Copyright (C) 2026 nwkyz
+# This file is distributed under the GPL-3.0+ license.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-06 15:38+0800\n"
-"PO-Revision-Date: 2026-07-06 15:38+0800\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Project-Id-Version: goodhaptic 1.1\n"
+"Report-Msgid-Bugs-To: info@mail.nwyz.eu.org\n"
+"POT-Creation-Date: 2026-07-16 12:00+0800\n"
+"PO-Revision-Date: 2026-07-16 12:00+0800\n"
+"Last-Translator: nwkyz <info@mail.nwyz.eu.org>\n"
+"Language-Team: English\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:171
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:540
-msgid "设备"
-msgstr "Device"
-
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:187
-msgid "未发现设备"
-msgstr "No device found"
-
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "轻"
-msgstr "Low"
+msgstr "Light"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "中"
 msgstr "Mid"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "重"
-msgstr "High"
+msgstr "Firm"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:316
 msgid "非常重"
 msgstr "Max"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:309
+#: src/window.c:203
+msgid "点击灵敏度"
+msgstr "Click sensitivity"
+
+#: src/window.c:205
+msgid "触发点击所需的按压力度"
+msgstr "Pressure required to trigger a click"
+
+#: src/window.c:216
+msgid "点击"
+msgstr "Click"
+
+#: src/window.c:266 src/window.c:1439
+msgid "设备"
+msgstr "Device"
+
+#: src/window.c:282
+msgid "未发现设备"
+msgstr "No device found"
+
+#: src/window.c:402 src/window.c:405
 msgid "振动"
 msgstr "Vibration"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:328
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:349
+#: src/window.c:424 src/window.c:445
 msgid "力度"
 msgstr "Strength"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:385
+#: src/window.c:481
 msgid "系统"
 msgstr "System"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:394
-msgid "开机恢复力度"
-msgstr "Restore on startup"
+#: src/window.c:490
+msgid "开机恢复设置"
+msgstr "Restore settings on startup"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:396
-msgid "启动时自动将力度写入硬件，防止重启后恢复默认值"
-msgstr "Apply saved strength at boot to prevent reset to factory default"
+#: src/window.c:492
+msgid "启动时自动将设置写入硬件，防止重启后恢复默认值"
+msgstr "Automatically write settings to hardware at startup to prevent reset to defaults"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:427
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:507
+#: src/window.c:523 src/window.c:1400
 msgid "首选项"
 msgstr "Preferences"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:431
+#: src/window.c:527
 msgid "调节"
 msgstr "Adjustment"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:440
+#: src/window.c:536
 msgid "无级调节"
 msgstr "Stepless adjustment"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:442
+#: src/window.c:538
 msgid "无级调节对于某些设备不起作用"
 msgstr "Stepless adjustment may not work on some devices"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:462
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:495
+#: src/window.c:571 src/window.c:1388
 msgid "Good Haptic"
 msgstr "Good Haptic"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:508
+#: src/window.c:1401
 msgid "关于"
 msgstr "About"
+
+#: src/window.c:591
+msgid "数据"
+msgstr "Data"
+
+#: src/window.c:622
+msgid "Touchpad"
+msgstr "Touchpad"
+
+#: src/window.c:623
+msgid "Clickpad"
+msgstr "Clickpad"
+
+#: src/window.c:624
+msgid "Precision Touchpad"
+msgstr "Precision Touchpad"
+
+#: src/window.c:625
+msgid "未知"
+msgstr "Unknown"
+
+#: src/window.c:631
+msgid "最大触摸点数"
+msgstr "Max contact count"
+
+#: src/window.c:638
+msgid "触控板类型"
+msgstr "Touchpad type"
+
+#: src/window.c:644
+msgid "设备信息"
+msgstr "Device information"
+
+#: src/window.c:646
+msgid "无法读取"
+msgstr "Unable to read"
+
+#: src/window.c:1035
+msgid "<span font_features='tnum'>触点数: %d</span>"
+msgstr "<span font_features='tnum'>Contacts: %d</span>"
+
+#: src/window.c:1040
+msgid "<span font_features='tnum'>按键: %s</span>"
+msgstr "<span font_features='tnum'>Button: %s</span>"
+
+#: src/window.c:1041
+msgid "按下"
+msgstr "Pressed"
+
+#: src/window.c:1041
+msgid "松开"
+msgstr "Released"
+
+#: src/window.c:1045
+msgid "<span font_features='tnum'>扫描: %05d</span>"
+msgstr "<span font_features='tnum'>Scan: %05d</span>"
+
+#: src/window.c:1198
+msgid "无法连接到守护进程"
+msgstr "Unable to connect to daemon"
+
+#: src/window.c:1219
+msgid "守护进程不支持监控功能"
+msgstr "Daemon does not support monitoring"
+
+#: src/window.c:1238
+msgid "触摸监控"
+msgstr "Touch monitor"
+
+#: src/window.c:1262
+msgid "<span font_features='tnum'>触点数: —</span>"
+msgstr "<span font_features='tnum'>Contacts: —</span>"
+
+#: src/window.c:1268
+msgid "<span font_features='tnum'>按键: —</span>"
+msgstr "<span font_features='tnum'>Button: —</span>"
+
+#: src/window.c:1274
+msgid "<span font_features='tnum'>扫描: —</span>"
+msgstr "<span font_features='tnum'>Scan: —</span>"
+
+#: src/window.c:1343
+msgid "状态监控"
+msgstr "Status monitor"
+
+#: src/window.c:1345
+msgid "实时触摸位置、压力与按键状态"
+msgstr "Real-time touch position, pressure and button state"

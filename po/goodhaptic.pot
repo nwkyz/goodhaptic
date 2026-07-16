@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: goodhaptic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-06 15:38+0800\n"
+"POT-Creation-Date: 2026-07-16 12:00+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,74 +17,170 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:171
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:540
-msgid "设备"
-msgstr ""
-
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:187
-msgid "未发现设备"
-msgstr ""
-
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "轻"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "中"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "重"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:221
+#: src/window.c:316
 msgid "非常重"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:309
+#: src/window.c:203
+msgid "点击灵敏度"
+msgstr ""
+
+#: src/window.c:205
+msgid "触发点击所需的按压力度"
+msgstr ""
+
+#: src/window.c:216
+msgid "点击"
+msgstr ""
+
+#: src/window.c:266 src/window.c:1439
+msgid "设备"
+msgstr ""
+
+#: src/window.c:282
+msgid "未发现设备"
+msgstr ""
+
+#: src/window.c:402 src/window.c:405
 msgid "振动"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:328
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:349
+#: src/window.c:424 src/window.c:445
 msgid "力度"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:385
+#: src/window.c:481
 msgid "系统"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:394
-msgid "开机恢复力度"
+#: src/window.c:490
+msgid "开机恢复设置"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:396
-msgid "启动时自动将力度写入硬件，防止重启后恢复默认值"
+#: src/window.c:492
+msgid "启动时自动将设置写入硬件，防止重启后恢复默认值"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:427
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:507
+#: src/window.c:523 src/window.c:1400
 msgid "首选项"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:431
+#: src/window.c:527
 msgid "调节"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:440
+#: src/window.c:536
 msgid "无级调节"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:442
+#: src/window.c:538
 msgid "无级调节对于某些设备不起作用"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:462
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:495
+#: src/window.c:571 src/window.c:1388
 msgid "Good Haptic"
 msgstr ""
 
-#: /home/exhyz/Downloads/goodhaptic/src/window.c:508
+#: src/window.c:1401
 msgid "关于"
+msgstr ""
+
+#: src/window.c:591
+msgid "数据"
+msgstr ""
+
+#: src/window.c:622
+msgid "Touchpad"
+msgstr ""
+
+#: src/window.c:623
+msgid "Clickpad"
+msgstr ""
+
+#: src/window.c:624
+msgid "Precision Touchpad"
+msgstr ""
+
+#: src/window.c:625
+msgid "未知"
+msgstr ""
+
+#: src/window.c:631
+msgid "最大触摸点数"
+msgstr ""
+
+#: src/window.c:638
+msgid "触控板类型"
+msgstr ""
+
+#: src/window.c:644
+msgid "设备信息"
+msgstr ""
+
+#: src/window.c:646
+msgid "无法读取"
+msgstr ""
+
+#: src/window.c:1035
+msgid "<span font_features='tnum'>触点数: %d</span>"
+msgstr ""
+
+#: src/window.c:1040
+msgid "<span font_features='tnum'>按键: %s</span>"
+msgstr ""
+
+#: src/window.c:1041
+msgid "按下"
+msgstr ""
+
+#: src/window.c:1041
+msgid "松开"
+msgstr ""
+
+#: src/window.c:1045
+msgid "<span font_features='tnum'>扫描: %05d</span>"
+msgstr ""
+
+#: src/window.c:1198
+msgid "无法连接到守护进程"
+msgstr ""
+
+#: src/window.c:1219
+msgid "守护进程不支持监控功能"
+msgstr ""
+
+#: src/window.c:1238
+msgid "触摸监控"
+msgstr ""
+
+#: src/window.c:1262
+msgid "<span font_features='tnum'>触点数: —</span>"
+msgstr ""
+
+#: src/window.c:1268
+msgid "<span font_features='tnum'>按键: —</span>"
+msgstr ""
+
+#: src/window.c:1274
+msgid "<span font_features='tnum'>扫描: —</span>"
+msgstr ""
+
+#: src/window.c:1343
+msgid "状态监控"
+msgstr ""
+
+#: src/window.c:1345
+msgid "实时触摸位置、压力与按键状态"
 msgstr ""

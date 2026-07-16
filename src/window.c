@@ -1259,19 +1259,19 @@ on_monitor_activate(GSimpleAction *action, GVariant *param, gpointer data)
 
     GtkWidget *cl = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(cl),
-                         "<span font_features='tnum'>触点数: —</span>");
+                         _("<span font_features='tnum'>触点数: —</span>"));
     ctx->count_label = cl;
     gtk_box_append(GTK_BOX(status_box), cl);
 
     GtkWidget *bl = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(bl),
-                         "<span font_features='tnum'>按键: —</span>");
+                         _("<span font_features='tnum'>按键: —</span>"));
     ctx->button_label = bl;
     gtk_box_append(GTK_BOX(status_box), bl);
 
     GtkWidget *sl = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(sl),
-                         "<span font_features='tnum'>扫描: —</span>");
+                         _("<span font_features='tnum'>扫描: —</span>"));
     ctx->scan_label = sl;
     gtk_box_append(GTK_BOX(status_box), sl);
 

@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: goodhaptic 1.0\n"
+"Project-Id-Version: goodhaptic 1.1\n"
 "Report-Msgid-Bugs-To: info@mail.nwyz.eu.org\n"
-"POT-Creation-Date: 2026-07-06 15:38+0800\n"
-"PO-Revision-Date: 2026-07-06 15:45+0800\n"
+"POT-Creation-Date: 2026-07-16 12:00+0800\n"
+"PO-Revision-Date: 2026-07-16 12:00+0800\n"
 "Last-Translator: nwkyz <info@mail.nwyz.eu.org>\n"
 "Language-Team: Chinese (Simplified)\n"
 "Language: zh_CN\n"
@@ -15,70 +15,170 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/window.c:171 src/window.c:540
-msgid "设备"
-msgstr "设备"
-
-#: src/window.c:187
-msgid "未发现设备"
-msgstr "未发现设备"
-
-#: src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "轻"
 msgstr "轻"
 
-#: src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "中"
 msgstr "中"
 
-#: src/window.c:221
+#: src/window.c:176 src/window.c:316
 msgid "重"
 msgstr "重"
 
-#: src/window.c:221
+#: src/window.c:316
 msgid "非常重"
 msgstr "非常重"
 
-#: src/window.c:309
+#: src/window.c:203
+msgid "点击灵敏度"
+msgstr "点击灵敏度"
+
+#: src/window.c:205
+msgid "触发点击所需的按压力度"
+msgstr "触发点击所需的按压力度"
+
+#: src/window.c:216
+msgid "点击"
+msgstr "点击"
+
+#: src/window.c:266 src/window.c:1439
+msgid "设备"
+msgstr "设备"
+
+#: src/window.c:282
+msgid "未发现设备"
+msgstr "未发现设备"
+
+#: src/window.c:402 src/window.c:405
 msgid "振动"
 msgstr "振动"
 
-#: src/window.c:328 src/window.c:349
+#: src/window.c:424 src/window.c:445
 msgid "力度"
 msgstr "力度"
 
-#: src/window.c:385
+#: src/window.c:481
 msgid "系统"
 msgstr "系统"
 
-#: src/window.c:394
-msgid "开机恢复力度"
-msgstr "开机恢复力度"
+#: src/window.c:490
+msgid "开机恢复设置"
+msgstr "开机恢复设置"
 
-#: src/window.c:396
-msgid "启动时自动将力度写入硬件，防止重启后恢复默认值"
-msgstr "启动时自动将力度写入硬件，防止重启后恢复默认值"
+#: src/window.c:492
+msgid "启动时自动将设置写入硬件，防止重启后恢复默认值"
+msgstr "启动时自动将设置写入硬件，防止重启后恢复默认值"
 
-#: src/window.c:427 src/window.c:507
+#: src/window.c:523 src/window.c:1400
 msgid "首选项"
 msgstr "首选项"
 
-#: src/window.c:431
+#: src/window.c:527
 msgid "调节"
 msgstr "调节"
 
-#: src/window.c:440
+#: src/window.c:536
 msgid "无级调节"
 msgstr "无级调节"
 
-#: src/window.c:442
+#: src/window.c:538
 msgid "无级调节对于某些设备不起作用"
 msgstr "无级调节对于某些设备不起作用"
 
-#: src/window.c:462 src/window.c:495
+#: src/window.c:571 src/window.c:1388
 msgid "Good Haptic"
 msgstr "Good Haptic"
 
-#: src/window.c:508
+#: src/window.c:1401
 msgid "关于"
 msgstr "关于"
+
+#: src/window.c:591
+msgid "数据"
+msgstr "数据"
+
+#: src/window.c:622
+msgid "Touchpad"
+msgstr "触摸板"
+
+#: src/window.c:623
+msgid "Clickpad"
+msgstr "点击板"
+
+#: src/window.c:624
+msgid "Precision Touchpad"
+msgstr "精确式触摸板"
+
+#: src/window.c:625
+msgid "未知"
+msgstr "未知"
+
+#: src/window.c:631
+msgid "最大触摸点数"
+msgstr "最大触摸点数"
+
+#: src/window.c:638
+msgid "触控板类型"
+msgstr "触控板类型"
+
+#: src/window.c:644
+msgid "设备信息"
+msgstr "设备信息"
+
+#: src/window.c:646
+msgid "无法读取"
+msgstr "无法读取"
+
+#: src/window.c:1035
+msgid "<span font_features='tnum'>触点数: %d</span>"
+msgstr "<span font_features='tnum'>触点数: %d</span>"
+
+#: src/window.c:1040
+msgid "<span font_features='tnum'>按键: %s</span>"
+msgstr "<span font_features='tnum'>按键: %s</span>"
+
+#: src/window.c:1041
+msgid "按下"
+msgstr "按下"
+
+#: src/window.c:1041
+msgid "松开"
+msgstr "松开"
+
+#: src/window.c:1045
+msgid "<span font_features='tnum'>扫描: %05d</span>"
+msgstr "<span font_features='tnum'>扫描: %05d</span>"
+
+#: src/window.c:1198
+msgid "无法连接到守护进程"
+msgstr "无法连接到守护进程"
+
+#: src/window.c:1219
+msgid "守护进程不支持监控功能"
+msgstr "守护进程不支持监控功能"
+
+#: src/window.c:1238
+msgid "触摸监控"
+msgstr "触摸监控"
+
+#: src/window.c:1262
+msgid "<span font_features='tnum'>触点数: —</span>"
+msgstr "<span font_features='tnum'>触点数: —</span>"
+
+#: src/window.c:1268
+msgid "<span font_features='tnum'>按键: —</span>"
+msgstr "<span font_features='tnum'>按键: —</span>"
+
+#: src/window.c:1274
+msgid "<span font_features='tnum'>扫描: —</span>"
+msgstr "<span font_features='tnum'>扫描: —</span>"
+
+#: src/window.c:1343
+msgid "状态监控"
+msgstr "状态监控"
+
+#: src/window.c:1345
+msgid "实时触摸位置、压力与按键状态"
+msgstr "实时触摸位置、压力与按键状态"

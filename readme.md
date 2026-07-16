@@ -1,130 +1,216 @@
 ![](https://raw.githubusercontent.com/nwkyz/nwkyz-picbed/main/storage/goodhaptic-banner2.png)
-<center>在Linux中控制Goodix压感触控板</center>
+<center>Control Goodix haptic touchpads on Linux</center>
+<center>[ <a href="readme_zh.md">中文</a> / English ]</center>
 
-## 已知兼容
+## Known Compatibility
 
-- **设备**：Goodix GXTP5100（USB `27c6:659a`，HID `27C6:01E7`）
-- **接口**：`/dev/hidrawN`，通过 HID feature report `0x09` 写入力度值（0–100）
-- **已测试兼容设备**：Lenovo ThinkBook 16 G8+ IPD
+- **Device**: Goodix GXTP5100 (USB `27c6:659a`, HID `27C6:01E7`)
+- **Interface**: `/dev/hidrawN`, control via HID feature report writes
+- **Tested Device**: Lenovo ThinkBook 16 G8+ IPD
 
-## 依赖
+## Features
+
+| Feature | HID Report | Description |
+|---|---|---|
+| Vibration Strength | `0x09` Set Feature | 0–100, controls haptic feedback intensity |
+| Click Sensitivity | `0x08` Set Feature | 3 levels (Light/Mid/Firm), adjusts the pressure needed to register a click |
+| Device Capability | `0x02` Get Feature | Reads maximum contact count and touchpad type |
+| Touch Monitor | `0x04` Input | Real-time finger position, pressure and button state |
+
+### Vibration
+
+- **Preset Mode**: Light / Mid / Firm / Max (25 / 50 / 75 / 100)
+- **Stepless Adjustment**: When enabled, use a 0–100 slider for fine-grained control (may not work on some devices)
+- **Toggle**: Disable the vibration switch to temporarily mute haptic feedback
+
+### Click
+
+Adjust click sensitivity (Report `0x08`) with three levels mapping to different pressure thresholds:
+
+| Level | Force Threshold | Experience |
+|---|---|---|
+| Light | ~110 g | Light tap triggers a click |
+| Mid | ~150 g | Moderate pressure |
+| Firm | ~190 g | Requires a heavier press |
+
+### Touch Monitor
+
+Real-time visualisation of touchpad state (daemon continuously reads Report `0x04`):
+
+- 5-finger touch position overlay (touchpad plane + coordinates)
+- Per-finger pressure bar chart
+- Real-time contact count / button state / scan time
+- Automatically adapts to logical max coordinates from the HID descriptor
+
+### Device Info
+
+Automatically reads and displays:
+- Max contact count
+- Touchpad type (Touchpad / Clickpad / Precision Touchpad)
+
+## Dependencies
 
 - meson (>= 1.0)
 - gtk4 (>= 4.10)
 - libadwaita-1 (>= 1.4)
 - systemd
 
-安装依赖:
+Install dependencies:
 
 ```bash
 # Debian/Ubuntu
 sudo apt install meson libgtk-4-dev libadwaita-1-dev
 ```
 
-## 快速使用
+## Quick Start
 
-### 构建
+### Build
 
 ```bash
 meson setup build
 ninja -C build
 ```
 
-### 安装与卸载
+### Install & Uninstall
 
 ```bash
-# 安装（自动启用并启动 goodhapticd 守护进程）
+# Install (auto-enables and starts goodhapticd service)
 sudo meson install -C build
 
-# 卸载
+# Uninstall
 sudo scripts/uninstall.sh
 ```
 
-安装后 GUI 可通过 `goodhaptic` 命令或在应用菜单中启动。
+After installation, the GUI can be launched via the `goodhaptic` command or from the application menu.
 
+## Restore on Startup
 
-## 开机恢复
+When `Restore settings on startup` is enabled in the `System` section, goodhapticd automatically writes the saved strength and click sensitivity to the hardware at boot, preventing reset to factory defaults after a reboot or power cycle.
 
-`系统`中开启`开机恢复力度`后，goodhapticd 会在每次开机时自动将保存的力度写入硬件，防止重启后恢复默认值。
+## Configuration File
 
-## 配置文件
-
-位于:
+Location:
 `/etc/goodhaptic.conf`
 
-例如:
+Example:
 ```
 device /dev/hidraw0
 strength 50
+threshold 2
 persist 1
 stepless 0
 ```
 
-| 字段 |  |
+| Field | Description |
 |---|---|
-| `device` | hidraw 设备路径 |
-| `strength` | 当前力度值 (0–100) |
-| `persist` | 开机恢复 (0=关, 1=开) |
-| `stepless` | 无级调节 (0=档位, 1=滑块) |
+| `device` | hidraw device path |
+| `strength` | Current strength (0–100) |
+| `threshold` | Click sensitivity (1=Light, 2=Mid, 3=Firm) |
+| `persist` | Restore on startup (0=off, 1=on) |
+| `stepless` | Stepless adjustment (0=presets, 1=slider) |
 
-## 帮助翻译
+## Help Translate
 
-翻译文件位于 `po/` 目录，使用 GNU gettext。
+Translation files are in the `po/` directory, using GNU gettext.
 
 ```bash
-# 生成/更新翻译模板 (POT)
+# Generate/update translation template (POT)
 ninja -C build goodhaptic-pot
 
-# 添加新语言（替换 xx 为语言代码）
+# Add a new language (replace xx with language code)
 msginit --locale=xx --input=po/goodhaptic.pot --output=po/xx.po
 
-# 或从已有翻译更新
+# Or update existing translations
 msgmerge --update po/xx.po po/goodhaptic.pot
 
-# 编辑 po/xx.po 填入翻译后，将语言代码添加到 po/LINGUAS
+# Edit po/xx.po with translations, then add the language code to po/LINGUAS
 echo "xx" >> po/LINGUAS
 
-# 重新构建
+# Rebuild
 meson setup build --reconfigure
 ninja -C build
 ```
 
-## DEB 打包 (暂时不可用)
+## DEB Packaging (currently unavailable)
 
-所有构建产物和中间文件都收拢在 `deb-build/` 目录
+All build artifacts and intermediate files are contained within the `deb-build/` directory.
 
 ```bash
 ./scripts/build-deb.sh
 
-# 安装
+# Install
 sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 ```
 
-## 已知信息
+## Known Information
 
-1. **定位输入设备**：`/sys/class/input/inputN` → `GXTP5100:00 27C6:01E7 Touchpad`，驱动 `hid-multitouch`
-2. **尝试读取 HID feature report**：测试了 `0x02`、`0x06`、`0x09`、`0x0b`、`0x0c`、`0x0d`，部分可读
-3. **Windows 逆向**：通过 Procmon 确认 Windows 设置「触控板 → 震动力度」本质上是写 HID feature report
-4. **方案**：向 `/dev/hidrawN` 写入 feature report `0x09` + 力度值，震动强度实时变化
+1. **Locating the input device**: `/sys/class/input/inputN` → `GXTP5100:00 27C6:01E7 Touchpad`, driver `hid-multitouch`
+2. **HID Feature Report overview**:
 
-## 结构
+| Report | Type | Size | Purpose | Status |
+|---|---|---|---|---|
+| 0x02 | Feature | 2 bytes | Device capability (max contacts, pad type) | ✅ Implemented |
+| 0x04 | Input | ~38 bytes | Precision Touchpad data (5 fingers) | ✅ Implemented (monitor) |
+| 0x08 | Feature | 2 bytes | Click force threshold (1–3) | ✅ Implemented |
+| 0x09 | Feature | 2 bytes | Haptic strength (0–100) | ✅ Implemented |
+| 0x03 | Feature | — | Digitizer configuration | ⏳ Pending |
+| 0x05 | Feature | — | Surface/Button configuration | ⏳ Pending |
+| 0x06 | Feature | 256 bytes | Vendor commands | ⏳ Needs RE |
+| 0x0B | Feature | 66 bytes | Vendor status | ⏳ Needs RE |
+| 0x0C | Feature | 736 bytes | Calibration data | ⏳ Needs RE |
+| 0x0D | Feature | 4 bytes | Firmware info | ⏳ Pending |
+
+3. **Windows reverse-engineering**: Confirmed via Procmon that the Windows "Touchpad → Vibration Strength" setting is essentially a HID feature report write
+4. **Approach**: Write feature report + data to `/dev/hidrawN`; the hardware responds in real time
+
+## Architecture
 
 ```
-goodhapticd (systemd 服务, root)
-  ├── 启动时读取 /etc/goodhaptic.conf
-  ├── persist=1 时恢复力度到硬件
-  └── 监听 /run/goodhaptic/sock 接受 GUI 命令
+goodhapticd (systemd service, root)
+  ├── Reads /etc/goodhaptic.conf at startup
+  ├── Restores strength and sensitivity to hardware when persist=1
+  ├── Listens on /run/goodhaptic/sock for GUI commands
+  ├── Commands: STRENGTH, THRESHOLD, PERSIST, DEVICE, STEPLESS
+  ├── Queries:   CAPABILITY, RESOLUTION
+  └── Streaming: MONITOR (Report 0x04 real-time touch data)
 
-GUI (普通用户)
-  └── 通过 Unix socket 与 daemon 通信，无需 root
+GUI (unprivileged user)
+  ├── Communicates with daemon via Unix socket — no root required
+  ├── Vibration: preset/slider toggle, on/off switch
+  ├── Click: 3-level sensitivity toggle
+  ├── Touch Monitor: real-time position/pressure visualisation
+  └── Data: device capability information display
 ```
 
-## 限制
+## Limitations
 
-- **无法读取当前力度**：`HIDIOCGFEATURE` 对 report `0x09` 不生效，硬件不支持回读
-- **断电后可能恢复默认值**：硬件在完全断电（关机）后震动强度可能重置，可通过「开机恢复力度」功能弥补
-- **设备检测**：通过扫描 `/sys/class/hidraw` 自动发现，但仅匹配 HID 设备名，不限定具体型号
+- **Current strength/sensitivity cannot be read back**: `HIDIOCGFEATURE` does not work for reports `0x08` and `0x09`; the hardware does not support readback
+- **Defaults may reset after power loss**: Vibration strength and sensitivity may reset after a full power-off (shutdown). Mitigated by the "Restore settings on startup" feature
+- **Device detection**: Automatically discovered by scanning `/sys/class/hidraw`, but only matches the HID device name — does not restrict to a specific model
+- **Monitor requires daemon**: The touch monitor feature requires the daemon to continuously read `/dev/hidrawN` and is only available when a device is connected
+- **Stepless compatibility**: Some devices may behave unexpectedly in stepless mode; switch back to preset mode if issues occur
 
-## 许可证
+## Test Tools
+
+Standalone probe scripts in the `test/` directory; root permissions required:
+
+```bash
+# Read device capability (Report 0x02)
+sudo python3 test/probe_02.py
+
+# Read current sensitivity (Report 0x08)
+sudo python3 test/probe_08.py
+
+# Set sensitivity (1=Light, 2=Mid, 3=Firm)
+sudo python3 test/probe_08.py set 1
+
+# Compile the C version
+gcc -o test/probe_08 test/probe_08.c
+sudo test/probe_08 set 2
+```
+
+Stop the daemon first: `sudo systemctl stop goodhapticd`
+
+## License
 
 GPLv3
