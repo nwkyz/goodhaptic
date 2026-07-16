@@ -23,12 +23,13 @@
 typedef struct {
     char device[256];
     int  strength;
-    int  persist;   /* 0 or 1 */
-    int  stepless;  /* 0=presets, 1=slider */
+    int  threshold;  /* click force threshold: 1=light, 2=medium, 3=firm */
+    int  persist;    /* 0 or 1 */
+    int  stepless;   /* 0=presets, 1=slider */
 } GoodhapticConfig;
 
 /* Read config from CONFIG_PATH.  If the file doesn't exist, fill in
- * defaults: empty device, strength=50, persist=1. */
+ * defaults: empty device, strength=50, threshold=2, persist=1. */
 void config_load(GoodhapticConfig *cfg);
 
 /* Write current config to CONFIG_PATH. */

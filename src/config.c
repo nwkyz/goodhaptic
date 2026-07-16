@@ -27,6 +27,7 @@ config_load(GoodhapticConfig *cfg)
 {
     cfg->device[0] = '\0';
     cfg->strength  = 50;
+    cfg->threshold = 2;
     cfg->persist   = 1;
     cfg->stepless  = 0;
 
@@ -45,6 +46,10 @@ config_load(GoodhapticConfig *cfg)
             snprintf(cfg->device, sizeof(cfg->device), "%s", line + 7);
         } else if (strncmp(line, "strength ", 9) == 0) {
             cfg->strength = atoi(line + 9);
+        } else if (strncmp(line, "threshold ", 10) == 0) {
+            cfg->threshold = atoi(line + 10);
+            if (cfg->threshold < 1) cfg->threshold = 1;
+            if (cfg->threshold > 3) cfg->threshold = 3;
         } else if (strncmp(line, "persist ", 8) == 0) {
             cfg->persist = atoi(line + 8) ? 1 : 0;
         } else if (strncmp(line, "stepless ", 9) == 0) {
@@ -66,6 +71,7 @@ config_save(const GoodhapticConfig *cfg)
 
     fprintf(f, "device %s\n", cfg->device);
     fprintf(f, "strength %d\n", cfg->strength);
+    fprintf(f, "threshold %d\n", cfg->threshold);
     fprintf(f, "persist %d\n", cfg->persist);
     fprintf(f, "stepless %d\n", cfg->stepless);
     fclose(f);
