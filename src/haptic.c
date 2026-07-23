@@ -308,6 +308,77 @@ haptic_get_resolution(const char *device, int *max_x, int *max_y)
 
 
 /*
+ * haptic_set_input_mode  —  set input mode via feature report 0x03.
+ *
+ * Controls which top-level collection the device uses for input reporting.
+ *   mode 0  = Mouse (basic mouse, no multi-touch)
+ *   mode 3  = Precision Touchpad (full multi-touch + gestures)
+ *
+ * IMPORTANT: GXTP5100 only respects 1 data byte (2-byte buffer total).
+ * Sending 2 data bytes (3-byte buffer) is silently ignored by firmware.
+ * This matches the Elan 0x300b quirk fixed in kernel commit 73e7d63e.
+ *
+ * Returns 0 on success, -1 on error.
+ */
+int
+haptic_set_input_mode(const char *device, int mode)
+{
+    if (mode < 0)  mode = 0;
+    if (mode > 10) mode = 10;
+
+    int fd = open(device, O_RDWR);
+    if (fd < 0) {
+        perror("open hidraw");
+        return -1;
+    }
+
+    /* 2-byte buffer: [report_id=0x03, mode] — firmware ignores 3-byte format */
+    unsigned char buf[2];
+    buf[0] = 0x03;
+    buf[1] = (unsigned char)mode;
+
+    int ret = ioctl(fd, HIDIOCSFEATURE(sizeof(buf)), buf);
+    close(fd);
+    return ret;
+}
+
+
+/*
+ * haptic_set_selective_reporting  —  control what input types are reported
+ * via feature report 0x05.
+ *
+ * Allows the host to selectively enable/disable surface contact reporting
+ * and button state reporting independently.
+ *
+ *   surface  0 = no touch data,  1 = report touch data
+ *   button   0 = no button data, 1 = report button data
+ *
+ * Uses 3-byte buffer [0x05, data_byte, 0] where data_byte encodes both
+ * switches: bit 0 = Surface Switch (0x57), bit 1 = Button Switch (0x58).
+ *
+ * Returns 0 on success, -1 on error.
+ */
+int
+haptic_set_selective_reporting(const char *device, int surface, int button)
+{
+    int fd = open(device, O_RDWR);
+    if (fd < 0) {
+        perror("open hidraw");
+        return -1;
+    }
+
+    unsigned char buf[3];
+    buf[0] = 0x05;
+    buf[1] = (unsigned char)((button ? 2 : 0) | (surface ? 1 : 0));
+    buf[2] = 0;  /* padding (14 const bits) */
+
+    int ret = ioctl(fd, HIDIOCSFEATURE(sizeof(buf)), buf);
+    close(fd);
+    return ret;
+}
+
+
+/*
  * haptic_open_input  —  open hidraw device for reading input reports.
  *
  * Opens the device read-only.  The caller is responsible for closing

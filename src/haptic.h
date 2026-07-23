@@ -38,6 +38,16 @@ int  haptic_get(const char *device);
  * value: 1-3 (1=light ~110g, 2=medium ~150g, 3=firm ~190g) */
 int  haptic_set_threshold(const char *device, int value);
 
+/* set input mode via feature report 0x03.
+ * mode 0 = Mouse (no multi-touch), 3 = Precision Touchpad (full multi-touch).
+ * uses 2-byte buffer [0x03, mode] — GXTP5100 firmware ignores 3-byte format. */
+int  haptic_set_input_mode(const char *device, int mode);
+
+/* set selective reporting via feature report 0x05.
+ * surface: 0=no touch data, 1=report touch data.
+ * button:  0=no button data, 1=report button data. */
+int  haptic_set_selective_reporting(const char *device, int surface, int button);
+
 /* read device capability via feature report 0x02.
  * on success fills *contact_max (max finger count) and *pad_type.
  * returns 0 on success, -1 on failure. */

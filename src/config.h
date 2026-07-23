@@ -24,6 +24,9 @@ typedef struct {
     char device[256];
     int  strength;
     int  threshold;  /* click force threshold: 1=light, 2=medium, 3=firm */
+    int  inputmode;          /* input mode: 3=PTP (multi-touch), 0=Mouse (legacy) */
+    int  selective_surface;  /* selective reporting: 0=off, 1=on */
+    int  selective_button;   /* selective reporting: 0=off, 1=on */
     int  persist;    /* 0 or 1 */
     int  stepless;   /* 0=presets, 1=slider */
 } GoodhapticConfig;

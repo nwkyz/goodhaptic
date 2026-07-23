@@ -20,13 +20,17 @@
 #include "haptic.h"
 #include "config.h"
 
+#include "i18n-config.h"
+
 #include <adwaita.h>
+#include <gdk/gdk.h>
 #include <glib/gi18n.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <dirent.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -36,6 +40,9 @@ static int       slider_value      = 50;
 static int       threshold_value   = 2;
 static int       config_persist    = 1;
 static int       config_stepless   = 0;
+static int       input_mode_value  = 3;   /* 0=Mouse, 3=PTP */
+static int       selective_surface = 1;   /* 0=off, 1=on */
+static int       selective_button  = 1;   /* 0=off, 1=on */
 static char     *sel_device        = NULL;
 
 static GtkWidget *slider         = NULL;
@@ -62,7 +69,7 @@ static void ensure_daemon(void)
 
     const char *argv[] = {
         "pkexec",
-        "/usr/local/libexec/goodhapticd",
+        LIBEXECDIR "/goodhapticd",
         NULL
     };
 
@@ -160,6 +167,22 @@ send_threshold(int value)
 }
 
 static void
+send_input_mode(int mode)
+{
+    char cmd[32];
+    snprintf(cmd, sizeof(cmd), "INPUTMODE %d\n", mode);
+    daemon_send(cmd);
+}
+
+static void
+send_selective(int surface, int button)
+{
+    char cmd[32];
+    snprintf(cmd, sizeof(cmd), "SELECTIVE %d %d\n", surface, button);
+    daemon_send(cmd);
+}
+
+static void
 on_threshold_changed(GObject *obj, GParamSpec *pspec, gpointer data)
 {
     AdwToggleGroup *group = ADW_TOGGLE_GROUP(obj);
@@ -168,6 +191,95 @@ on_threshold_changed(GObject *obj, GParamSpec *pspec, gpointer data)
         threshold_value = idx + 1;  /* 0→1, 1→2, 2→3 */
         send_threshold(threshold_value);
     }
+}
+
+static void
+on_input_mode_changed(GObject *o, GParamSpec *pspec, gpointer data)
+{
+    AdwComboRow *cr = ADW_COMBO_ROW(o);
+    guint idx = adw_combo_row_get_selected(cr);
+    /* idx 0 = PTP (3), idx 1 = Mouse (0) */
+    input_mode_value = (idx == 0) ? 3 : 0;
+    send_input_mode(input_mode_value);
+}
+
+static GtkWidget *
+build_mode_row(void)
+{
+    GtkWidget *row = adw_combo_row_new();
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(row), _("触控板模式"));
+    adw_action_row_set_subtitle(ADW_ACTION_ROW(row),
+        _("选择硬件输入模式"));
+
+    GtkStringList *model = gtk_string_list_new(NULL);
+    gtk_string_list_append(model, _("精确触控板"));
+    gtk_string_list_append(model, _("鼠标"));
+
+    adw_combo_row_set_model(ADW_COMBO_ROW(row), G_LIST_MODEL(model));
+    adw_combo_row_set_selected(ADW_COMBO_ROW(row),
+                               input_mode_value == 3 ? 0 : 1);
+
+    g_signal_connect(row, "notify::selected",
+                     G_CALLBACK(on_input_mode_changed), NULL);
+
+    /* help button as suffix */
+    GtkWidget *help_btn = gtk_menu_button_new();
+    gtk_menu_button_set_icon_name(GTK_MENU_BUTTON(help_btn),
+                                  "dialog-question-symbolic");
+    gtk_widget_set_valign(help_btn, GTK_ALIGN_CENTER);
+    gtk_widget_add_css_class(help_btn, "flat");
+
+    GtkWidget *popover = gtk_popover_new();
+    gtk_popover_set_has_arrow(GTK_POPOVER(popover), TRUE);
+    gtk_menu_button_set_popover(GTK_MENU_BUTTON(help_btn), popover);
+
+    GtkWidget *pop_content = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+    gtk_widget_set_margin_start(pop_content, 16);
+    gtk_widget_set_margin_end(pop_content, 16);
+    gtk_widget_set_margin_top(pop_content, 14);
+    gtk_widget_set_margin_bottom(pop_content, 14);
+    gtk_widget_set_size_request(pop_content, 320, -1);
+
+    GtkWidget *title_lbl = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(title_lbl),
+        _("<b>触控板模式</b>"));
+    gtk_widget_set_halign(title_lbl, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(pop_content), title_lbl);
+
+    GtkWidget *sep1 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_append(GTK_BOX(pop_content), sep1);
+
+    GtkWidget *ptp_lbl = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(ptp_lbl),
+        _("<b>精确触控板</b>\n"
+          "• 5 指多点触控\n"
+          "• 手势支持（滚动、缩放等）\n"
+          "• 触控报表率 ~100 Hz\n"
+          "• 压力感应反馈"));
+    gtk_widget_set_halign(ptp_lbl, GTK_ALIGN_START);
+    gtk_label_set_wrap(GTK_LABEL(ptp_lbl), TRUE);
+    gtk_label_set_xalign(GTK_LABEL(ptp_lbl), 0.0);
+    gtk_box_append(GTK_BOX(pop_content), ptp_lbl);
+
+    GtkWidget *sep2 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_append(GTK_BOX(pop_content), sep2);
+
+    GtkWidget *mouse_lbl = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(mouse_lbl),
+        _("<b>鼠标</b>\n"
+          "• 基础鼠标功能（光标移动 + 按键）\n"
+          "• 无多点触控，无手势\n"
+          "• 触控报表率降至 ~7 Hz\n"
+          "• 兼容旧系统"));
+    gtk_widget_set_halign(mouse_lbl, GTK_ALIGN_START);
+    gtk_label_set_wrap(GTK_LABEL(mouse_lbl), TRUE);
+    gtk_label_set_xalign(GTK_LABEL(mouse_lbl), 0.0);
+    gtk_box_append(GTK_BOX(pop_content), mouse_lbl);
+
+    gtk_popover_set_child(GTK_POPOVER(popover), pop_content);
+    adw_action_row_add_suffix(ADW_ACTION_ROW(row), help_btn);
+
+    return row;
 }
 
 static GtkWidget *
@@ -218,6 +330,9 @@ build_click_section(void)
     GtkWidget *tr = build_threshold_row();
     threshold_row = tr;
     adw_preferences_group_add(ADW_PREFERENCES_GROUP(group), tr);
+
+    GtkWidget *mr = build_mode_row();
+    adw_preferences_group_add(ADW_PREFERENCES_GROUP(group), mr);
 
     return group;
 }
@@ -474,8 +589,158 @@ on_persist_toggled(GObject *obj, GParamSpec *pspec, gpointer data)
     daemon_send(cmd);
 }
 
+/* ---- selective reporting switches --------------------------------- */
+
+static void
+on_surface_toggled(GObject *obj, GParamSpec *pspec, gpointer data)
+{
+    GtkSwitch *sw = GTK_SWITCH(obj);
+    int surface = gtk_switch_get_active(sw) ? 1 : 0;
+    /* Read button state from the sibling switch passed via user_data */
+    GtkSwitch *btn_sw = GTK_SWITCH(data);
+    int button = gtk_switch_get_active(btn_sw) ? 1 : 0;
+    send_selective(surface, button);
+}
+
+static void
+on_button_toggled(GObject *obj, GParamSpec *pspec, gpointer data)
+{
+    GtkSwitch *sw = GTK_SWITCH(obj);
+    int button = gtk_switch_get_active(sw) ? 1 : 0;
+    GtkSwitch *surf_sw = GTK_SWITCH(data);
+    int surface = gtk_switch_get_active(surf_sw) ? 1 : 0;
+    send_selective(surface, button);
+}
+
+/* ==== advanced dialog ============================================= */
+
+static void
+on_advanced(GSimpleAction *action, GVariant *param, gpointer data)
+{
+    GtkWidget *parent = GTK_WIDGET(data);
+
+    AdwDialog *dialog = adw_dialog_new();
+    adw_dialog_set_title(ADW_DIALOG(dialog), _("高级"));
+    adw_dialog_set_content_width(ADW_DIALOG(dialog), 480);
+    adw_dialog_set_content_height(ADW_DIALOG(dialog), 360);
+
+    GtkWidget *toolbar = adw_toolbar_view_new();
+
+    GtkWidget *header = adw_header_bar_new();
+    adw_header_bar_set_show_title(ADW_HEADER_BAR(header), TRUE);
+    adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(toolbar), header);
+
+    /* ---- warning banner (top, below header) ---- */
+    GtkWidget *warn_label = gtk_label_new(
+        _("请不要修改这些设置，除非你知道你在做什么。"));
+    gtk_label_set_wrap(GTK_LABEL(warn_label), TRUE);
+    gtk_label_set_xalign(GTK_LABEL(warn_label), 0.0);
+    gtk_widget_set_margin_start(warn_label, 14);
+    gtk_widget_set_margin_end(warn_label, 14);
+    gtk_widget_set_margin_top(warn_label, 10);
+    gtk_widget_set_margin_bottom(warn_label, 10);
+
+    GtkWidget *banner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_add_css_class(banner, "warn-banner");
+    gtk_box_append(GTK_BOX(banner), warn_label);
+
+    GtkCssProvider *css = gtk_css_provider_new();
+    gtk_css_provider_load_from_string(css,
+        ".warn-banner {"
+        "  background-color: #fde68a;"
+        "  border-bottom: 1px solid rgba(0.85, 0.68, 0.06, 0.5);"
+        "  color: black;"
+        "}");
+    gtk_style_context_add_provider_for_display(
+        gdk_display_get_default(),
+        GTK_STYLE_PROVIDER(css),
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    /* ---- page content ---- */
+    AdwPreferencesPage *page = ADW_PREFERENCES_PAGE(adw_preferences_page_new());
+    adw_preferences_page_set_title(page, _("高级"));
+
+    AdwPreferencesGroup *group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
+    adw_preferences_group_set_title(group, _("选择性上报"));
+
+    /* ---- surface switch ---- */
+    GtkWidget *surf_sw = gtk_switch_new();
+    gtk_switch_set_active(GTK_SWITCH(surf_sw), selective_surface != 0);
+    gtk_widget_set_valign(surf_sw, GTK_ALIGN_CENTER);
+
+    GtkWidget *btn_sw = gtk_switch_new();
+    gtk_switch_set_active(GTK_SWITCH(btn_sw), selective_button != 0);
+    gtk_widget_set_valign(btn_sw, GTK_ALIGN_CENTER);
+
+    g_signal_connect(surf_sw, "notify::active",
+                     G_CALLBACK(on_surface_toggled), btn_sw);
+    g_signal_connect(btn_sw, "notify::active",
+                     G_CALLBACK(on_button_toggled), surf_sw);
+
+    GtkWidget *surf_row = adw_action_row_new();
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(surf_row),
+        _("触摸上报"));
+    adw_action_row_set_subtitle(ADW_ACTION_ROW(surf_row),
+        _("启用触控板表面触摸数据（位置、压力）的上报。关闭后光标无法移动。"));
+    adw_action_row_add_suffix(ADW_ACTION_ROW(surf_row), surf_sw);
+    adw_action_row_set_activatable_widget(ADW_ACTION_ROW(surf_row), surf_sw);
+    adw_preferences_group_add(group, surf_row);
+
+    /* ---- button switch ---- */
+    GtkWidget *btn_row = adw_action_row_new();
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(btn_row),
+        _("按键上报"));
+    adw_action_row_set_subtitle(ADW_ACTION_ROW(btn_row),
+        _("启用触控板按键状态的上报。关闭后点击按键无响应。"));
+    adw_action_row_add_suffix(ADW_ACTION_ROW(btn_row), btn_sw);
+    adw_action_row_set_activatable_widget(ADW_ACTION_ROW(btn_row), btn_sw);
+    adw_preferences_group_add(group, btn_row);
+
+    adw_preferences_page_add(page, group);
+
+    /* banner + scrollable content in a vertical box */
+    GtkWidget *scroll = gtk_scrolled_window_new();
+    gtk_widget_set_vexpand(scroll, TRUE);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll),
+                                  GTK_WIDGET(page));
+
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_widget_set_vexpand(vbox, TRUE);
+    gtk_box_append(GTK_BOX(vbox), banner);
+    gtk_box_append(GTK_BOX(vbox), scroll);
+
+    adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(toolbar), vbox);
+    adw_dialog_set_child(ADW_DIALOG(dialog), toolbar);
+
+    adw_dialog_present(ADW_DIALOG(dialog), parent);
+}
+
+
 static GtkWidget *
-build_system_group(void)
+build_advanced_row(void)
+{
+    GtkWidget *row = adw_action_row_new();
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(row), _("高级"));
+    adw_action_row_set_subtitle(ADW_ACTION_ROW(row),
+        _("选择性上报等高级选项"));
+
+    GtkWidget *arrow = gtk_image_new_from_icon_name("go-next-symbolic");
+    gtk_widget_set_opacity(arrow, 0.55);
+    adw_action_row_add_suffix(ADW_ACTION_ROW(row), arrow);
+
+    return row;
+}
+
+
+static void
+on_advanced_row_clicked(GtkGestureClick *gesture, int n_press,
+                        double x, double y, gpointer data)
+{
+    g_action_activate(G_ACTION(data), NULL);
+}
+
+static GtkWidget *
+build_system_group(GtkWidget *parent)
 {
     GtkWidget *group = adw_preferences_group_new();
     adw_preferences_group_set_title(ADW_PREFERENCES_GROUP(group), _("系统"));
@@ -494,6 +759,24 @@ build_system_group(void)
     adw_action_row_set_activatable_widget(ADW_ACTION_ROW(row), sw);
 
     adw_preferences_group_add(ADW_PREFERENCES_GROUP(group), row);
+
+    /* Advanced row */
+    GtkWidget *adv = build_advanced_row();
+    adw_preferences_group_add(ADW_PREFERENCES_GROUP(group), adv);
+
+    /* Make it clickable */
+    GSimpleAction *adv_act = g_simple_action_new("advanced", NULL);
+    g_signal_connect(adv_act, "activate",
+                     G_CALLBACK(on_advanced), parent);
+    g_action_map_add_action(G_ACTION_MAP(
+        gtk_widget_get_root(parent)), G_ACTION(adv_act));
+
+    GtkGesture *adv_click = gtk_gesture_click_new();
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(adv_click), 1);
+    gtk_widget_add_controller(adv, GTK_EVENT_CONTROLLER(adv_click));
+    g_signal_connect(adv_click, "pressed",
+                     G_CALLBACK(on_advanced_row_clicked), adv_act);
+
     return group;
 }
 
@@ -570,7 +853,7 @@ on_about(GSimpleAction *action, GVariant *param, gpointer data)
     AdwAboutDialog *about = ADW_ABOUT_DIALOG(adw_about_dialog_new());
     adw_about_dialog_set_application_name(about, _("Good Haptic"));
     adw_about_dialog_set_application_icon(about, "io.github.nwkyz.goodhaptic");
-    adw_about_dialog_set_version(about, "1.0");
+    adw_about_dialog_set_version(about, PACKAGE_VERSION);
     adw_about_dialog_set_developer_name(about, "nwkyz");
     adw_about_dialog_set_copyright(about, "© 2025–2026 nwkyz");
     adw_about_dialog_set_license(about, gplv3);
@@ -645,6 +928,59 @@ build_data_section(void)
         adw_action_row_set_subtitle(ADW_ACTION_ROW(nr),
                                     _("无法读取"));
         adw_preferences_group_add(ADW_PREFERENCES_GROUP(group), nr);
+    }
+
+    /* Firmware version — read from sysfs (world-readable, no daemon needed) */
+    {
+        gchar fw_str[32] = {0};
+        DIR *d = opendir("/sys/class/input");
+        if (d) {
+            struct dirent *de;
+            while ((de = readdir(d)) != NULL) {
+                if (!strncmp(de->d_name, "input", 5)) {
+                    char name_path[320];
+                    snprintf(name_path, sizeof(name_path),
+                             "/sys/class/input/%s/name", de->d_name);
+                    FILE *nf = fopen(name_path, "r");
+                    if (nf) {
+                        char input_name[128] = {0};
+                        fgets(input_name, sizeof(input_name), nf);
+                        fclose(nf);
+
+                        /* match GXTP5100 touchpad */
+                        if (strstr(input_name, "GXTP5100") ||
+                            strstr(input_name, "27C6:01E7")) {
+                            char ver_path[320];
+                            snprintf(ver_path, sizeof(ver_path),
+                                     "/sys/class/input/%s/id/version",
+                                     de->d_name);
+                            FILE *vf = fopen(ver_path, "r");
+                            if (vf) {
+                                int ver = 0;
+                                if (fscanf(vf, "%x", &ver) == 1) {
+                                    snprintf(fw_str, sizeof(fw_str),
+                                             "%d.%02d",
+                                             (ver >> 8) & 0xff,
+                                             ver & 0xff);
+                                }
+                                fclose(vf);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            closedir(d);
+        }
+
+        GtkWidget *fr = adw_action_row_new();
+        adw_preferences_row_set_title(ADW_PREFERENCES_ROW(fr),
+                                      _("固件版本"));
+        if (fw_str[0])
+            adw_action_row_set_subtitle(ADW_ACTION_ROW(fr), fw_str);
+        else
+            adw_action_row_set_subtitle(ADW_ACTION_ROW(fr), _("未知"));
+        adw_preferences_group_add(ADW_PREFERENCES_GROUP(group), fr);
     }
 
     return group;
@@ -1373,10 +1709,13 @@ create_main_window(GtkApplication *app)
     /* read persisted config */
     GoodhapticConfig cfg;
     config_load(&cfg);
-    slider_value    = cfg.strength;
-    threshold_value = cfg.threshold;
-    config_persist  = cfg.persist;
-    config_stepless = cfg.stepless;
+    slider_value       = cfg.strength;
+    threshold_value    = cfg.threshold;
+    input_mode_value   = cfg.inputmode;
+    selective_surface  = cfg.selective_surface;
+    selective_button   = cfg.selective_button;
+    config_persist     = cfg.persist;
+    config_stepless    = cfg.stepless;
 
     /* --- device scan ------------------------------------------- */
     GtkWidget *device_row = build_device_row(
@@ -1450,7 +1789,7 @@ create_main_window(GtkApplication *app)
     GtkWidget *click_section = build_click_section();
 
     /* === 系统 === */
-    GtkWidget *sys_group = build_system_group();
+    GtkWidget *sys_group = build_system_group(win);
 
     /* === 数据 === */
     GtkWidget *data_section = build_data_section();

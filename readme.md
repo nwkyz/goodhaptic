@@ -1,6 +1,9 @@
 ![](https://raw.githubusercontent.com/nwkyz/nwkyz-picbed/main/storage/goodhaptic-banner2.png)
-<center>Control Goodix haptic touchpads on Linux</center>
-<center>[ <a href="readme_zh.md">中文</a> / English ]</center>
+
+<p align="center">Control Goodix haptic touchpads on Linux</p>  
+
+<p align="center">[ <a href="readme_zh.md">中文</a> / English ]</p>
+
 
 ## Known Compatibility
 
@@ -14,7 +17,10 @@
 |---|---|---|
 | Vibration Strength | `0x09` Set Feature | 0–100, controls haptic feedback intensity |
 | Click Sensitivity | `0x08` Set Feature | 3 levels (Light/Mid/Firm), adjusts the pressure needed to register a click |
+| Touchpad Mode | `0x03` Set Feature | Switch between Precision Touchpad and Mouse mode |
+| Selective Reporting | `0x05` Set Feature | Independently control touch/button data reporting |
 | Device Capability | `0x02` Get Feature | Reads maximum contact count and touchpad type |
+| Firmware Version | sysfs | Reads firmware version number |
 | Touch Monitor | `0x04` Input | Real-time finger position, pressure and button state |
 
 ### Vibration
@@ -97,6 +103,9 @@ Example:
 device /dev/hidraw0
 strength 50
 threshold 2
+inputmode 3
+selective_surface 1
+selective_button 1
 persist 1
 stepless 0
 ```
@@ -105,9 +114,16 @@ stepless 0
 |---|---|
 | `device` | hidraw device path |
 | `strength` | Current strength (0–100) |
-| `threshold` | Click sensitivity (1=Light, 2=Mid, 3=Firm) |
+| `threshold` | Click sensitivity (1=light, 2=medium, 3=firm) |
+| `inputmode` | Touchpad mode (0=Mouse, 3=Precision Touchpad) |
+| `persist` | Restore on boot (0=off, 1=on) |
+| `stepless` | Stepless adjustment (0=presets, 1=slider) |
+| `selective_surface` | Touch reporting (0=off, 1=on) |
+| `selective_button` | Button reporting (0=off, 1=on) |
 | `persist` | Restore on startup (0=off, 1=on) |
 | `stepless` | Stepless adjustment (0=presets, 1=slider) |
+| `selective_surface` | Touch reporting (0=off, 1=on) |
+| `selective_button` | Button reporting (0=off, 1=on) |
 
 ## Help Translate
 
@@ -131,9 +147,9 @@ meson setup build --reconfigure
 ninja -C build
 ```
 
-## DEB Packaging (currently unavailable)
+## DEB Packaging
 
-All build artifacts and intermediate files are contained within the `deb-build/` directory.
+All build artifacts and intermediate files (including `.deb` / `.ddeb` / `.buildinfo`) are contained within the `deb-build/` directory.
 
 ```bash
 ./scripts/build-deb.sh
@@ -150,18 +166,24 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 | Report | Type | Size | Purpose | Status |
 |---|---|---|---|---|
 | 0x02 | Feature | 2 bytes | Device capability (max contacts, pad type) | ✅ Implemented |
-| 0x04 | Input | ~38 bytes | Precision Touchpad data (5 fingers) | ✅ Implemented (monitor) |
+| 0x04 | Input | ~38 bytes | Precision Touchpad data (5 fingers) | ✅ Implemented |
 | 0x08 | Feature | 2 bytes | Click force threshold (1–3) | ✅ Implemented |
 | 0x09 | Feature | 2 bytes | Haptic strength (0–100) | ✅ Implemented |
-| 0x03 | Feature | — | Digitizer configuration | ⏳ Pending |
-| 0x05 | Feature | — | Surface/Button configuration | ⏳ Pending |
-| 0x06 | Feature | 256 bytes | Vendor commands | ⏳ Needs RE |
-| 0x0B | Feature | 66 bytes | Vendor status | ⏳ Needs RE |
-| 0x0C | Feature | 736 bytes | Calibration data | ⏳ Needs RE |
-| 0x0D | Feature | 4 bytes | Firmware info | ⏳ Pending |
+| 0x03 | Feature | 2 bytes (1 effective) | Input Mode (0=Mouse 3=PTP)¹ | ✅ Implemented |
+| 0x05 | Feature | 2 bytes | Selective reporting (Surface/Button Switch) | ✅ Implemented |
+| 0x07 | Feature | 2 bytes | Unknown purpose (renders touchpad unusable)³ | ⚠ Not implemented |
+| 0x06 | Feature | 256 bytes | Vendor configuration data | ⏳ Pending |
+| 0x0B | Feature | 66 bytes | Vendor status data | ⏳ Pending |
+| 0x0C | Feature | 736 bytes | Vendor calibration data | ⏳ Pending |
+| 0x0D | Feature | 4 bytes | Firmware command (Usage 0xC4)² | ⚠ Researched |
+| 0x0F | Feature | any size | Not in descriptor, read-only all zeros⁴ | ⚠ Researched |
 
-3. **Windows reverse-engineering**: Confirmed via Procmon that the Windows "Touchpad → Vibration Strength" setting is essentially a HID feature report write
+3. **Windows analysis**: Confirmed via Procmon that the Windows "Touchpad → Vibration Strength" setting is essentially a HID feature report write
 4. **Approach**: Write feature report + data to `/dev/hidrawN`; the hardware responds in real time
+5. **¹**: Report 0x03's HID descriptor declares 2 Input Mode fields (Report Size 8 × Report Count 2), but the firmware only respects the first byte. Writing 1 data byte (`[0x03, mode]`) works; 2 bytes (`[0x03, a, b]`) are silently ignored. This matches the Elan 0x300b quirk exactly ([kernel fix](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=73e7d63efb4d774883a338997943bfa59e127085))
+6. **²**: Report 0x0D GET_FEATURE is unsupported (EINVAL). SET_FEATURE succeeds but serves as a firmware command write entry, not readable. Firmware version is read from `/sys/class/input/inputN/id/version`, not via HID report.
+7. **³**: Report 0x07 — writing value 1 renders the touchpad nearly unusable (cursor barely moves, every touch triggers a click). Removed from code entirely.
+8. **⁴**: Reports 0x0F–0xFF are not declared in the HID descriptor, yet GET_FEATURE succeeds for all of them, always returning all zeros. Purpose unknown; no write operations are performed.
 
 ## Architecture
 
@@ -170,25 +192,22 @@ goodhapticd (systemd service, root)
   ├── Reads /etc/goodhaptic.conf at startup
   ├── Restores strength and sensitivity to hardware when persist=1
   ├── Listens on /run/goodhaptic/sock for GUI commands
-  ├── Commands: STRENGTH, THRESHOLD, PERSIST, DEVICE, STEPLESS
+  ├── Commands: STRENGTH, THRESHOLD, INPUTMODE, SELECTIVE, PERSIST, DEVICE, STEPLESS
   ├── Queries:   CAPABILITY, RESOLUTION
   └── Streaming: MONITOR (Report 0x04 real-time touch data)
 
 GUI (unprivileged user)
   ├── Communicates with daemon via Unix socket — no root required
   ├── Vibration: preset/slider toggle, on/off switch
-  ├── Click: 3-level sensitivity toggle
+  ├── Click: 3-level sensitivity toggle, touchpad mode switch
+  ├── System: startup restore, advanced selective reporting
   ├── Touch Monitor: real-time position/pressure visualisation
-  └── Data: device capability information display
+  └── Data: device capability, firmware version
 ```
 
 ## Limitations
 
 - **Current strength/sensitivity cannot be read back**: `HIDIOCGFEATURE` does not work for reports `0x08` and `0x09`; the hardware does not support readback
-- **Defaults may reset after power loss**: Vibration strength and sensitivity may reset after a full power-off (shutdown). Mitigated by the "Restore settings on startup" feature
-- **Device detection**: Automatically discovered by scanning `/sys/class/hidraw`, but only matches the HID device name — does not restrict to a specific model
-- **Monitor requires daemon**: The touch monitor feature requires the daemon to continuously read `/dev/hidrawN` and is only available when a device is connected
-- **Stepless compatibility**: Some devices may behave unexpectedly in stepless mode; switch back to preset mode if issues occur
 
 ## Test Tools
 

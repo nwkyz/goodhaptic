@@ -48,6 +48,13 @@ static void apply_config(const GoodhapticConfig *cfg)
     if (haptic_set_threshold(cfg->device, cfg->threshold) < 0)
         fprintf(stderr, "apply: %s threshold=%d failed\n",
                 cfg->device, cfg->threshold);
+    if (haptic_set_input_mode(cfg->device, cfg->inputmode) < 0)
+        fprintf(stderr, "apply: %s inputmode=%d failed\n",
+                cfg->device, cfg->inputmode);
+    if (haptic_set_selective_reporting(cfg->device,
+            cfg->selective_surface, cfg->selective_button) < 0)
+        fprintf(stderr, "apply: %s selective=%d,%d failed\n",
+                cfg->device, cfg->selective_surface, cfg->selective_button);
 }
 
 /*
@@ -203,6 +210,39 @@ handle_command(const char *line, const char **device, GoodhapticConfig *cfg,
             return "OK\n";
         }
         return "ERR bad value\n";
+    }
+
+    /* INPUTMODE <mode>  —  set input mode (0=Mouse, 3=PTP) via Report 0x03 */
+    if (strncmp(buf, "INPUTMODE ", 10) == 0) {
+        long val = strtol(buf + 10, &end, 10);
+        if (end > buf + 10 && *end == '\0' && (val == 0 || val == 3)) {
+            cfg->inputmode = (int)val;
+            if (haptic_set_input_mode(*device, cfg->inputmode) < 0)
+                return "ERR write failed\n";
+            config_save(cfg);
+            return "OK\n";
+        }
+        return "ERR bad value\n";
+    }
+
+    /* SELECTIVE <surface> <button>  —  selective reporting via Report 0x05 */
+    if (strncmp(buf, "SELECTIVE ", 10) == 0) {
+        long surface = 0, button = 0;
+        char *rest = NULL;
+        surface = strtol(buf + 10, &rest, 10);
+        if (rest && *rest == ' ')
+            button = strtol(rest + 1, NULL, 10);
+        else
+            return "ERR bad value\n";
+        if (surface < 0 || surface > 1 || button < 0 || button > 1)
+            return "ERR bad value\n";
+        cfg->selective_surface = (int)surface;
+        cfg->selective_button  = (int)button;
+        if (haptic_set_selective_reporting(*device,
+                cfg->selective_surface, cfg->selective_button) < 0)
+            return "ERR write failed\n";
+        config_save(cfg);
+        return "OK\n";
     }
 
     /* STEPLESS=0|1 */

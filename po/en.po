@@ -183,3 +183,82 @@ msgstr "Status monitor"
 #: src/window.c:1345
 msgid "实时触摸位置、压力与按键状态"
 msgstr "Real-time touch position, pressure and button state"
+
+#: src/window.c:195
+msgid "触控板模式"
+msgstr "Touchpad Mode"
+
+#: src/window.c:197
+msgid "选择硬件输入模式"
+msgstr "Select hardware input mode"
+
+#: src/window.c:201
+msgid "精确触控板"
+msgstr "Precision Touchpad"
+
+#: src/window.c:203
+msgid "鼠标"
+msgstr "Mouse"
+
+#: src/window.c:233
+msgid "<b>触控板模式</b>"
+msgstr "<b>Touchpad Mode</b>"
+
+#: src/window.c:240
+msgid ""
+"<b>精确触控板</b>\n"
+"• 5 指多点触控\n"
+"• 手势支持（滚动、缩放等）\n"
+"• 触控报表率 ~100 Hz\n"
+"• 压力感应反馈"
+msgstr ""
+"<b>Precision Touchpad</b>\n"
+"• 5-finger multi-touch\n"
+"• Gesture support (scroll, zoom, etc.)\n"
+"• Touch report rate ~100 Hz\n"
+"• Pressure-sensitive feedback"
+
+#: src/window.c:256
+msgid ""
+"<b>鼠标</b>\n"
+"• 基础鼠标功能（光标移动 + 按键）\n"
+"• 无多点触控，无手势\n"
+"• 触控报表率降至 ~7 Hz\n"
+"• 兼容旧系统"
+msgstr ""
+"<b>Mouse</b>\n"
+"• Basic mouse (cursor movement + buttons)\n"
+"• No multi-touch or gestures\n"
+"• Touch report rate drops to ~7 Hz\n"
+"• Legacy system compatible"
+
+#: src/window.c advanced section
+msgid "高级"
+msgstr "Advanced"
+
+msgid "选择性上报 — 控制触控板上报的数据类型"
+msgstr "Selective reporting — control what data the touchpad reports"
+
+msgid "选择性上报等高级选项"
+msgstr "Selective reporting and other advanced options"
+
+msgid "选择性上报"
+msgstr "Selective Reporting"
+
+msgid "请不要修改这些设置，除非你知道你在做什么。"
+msgstr "Do not change these settings unless you know what you are doing."
+
+msgid "触摸上报"
+msgstr "Touch reporting"
+
+msgid "启用触控板表面触摸数据（位置、压力）的上报。关闭后光标无法移动。"
+msgstr "Enable touchpad surface contact data (position, pressure). Cursor will not move when disabled."
+
+msgid "按键上报"
+msgstr "Button reporting"
+
+msgid "启用触控板按键状态的上报。关闭后点击按键无响应。"
+msgstr "Enable touchpad button state reporting. Clicks will not register when disabled."
+
+msgid "固件版本"
+msgstr "Firmware version"

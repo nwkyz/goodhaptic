@@ -114,16 +114,34 @@ Usage:      0x55 (Contact Count Maximum), 0x59 (Pad Type)
 
 ---
 
-#### 4.3 Report 0x03 — Digitizer 配置
+#### 4.3 Report 0x03 — Input Mode / Device Mode ✅ 已分析
 
 ```
-类型: Feature
-用途: 触控数字化仪配置（灵敏度、报告率等）
+Usage Page: Digitizers (0x0D)
+Usage:       0x0E (Device Configuration) → 0x22 (Finger) → 0x52 (Input Mode)
+大小:        1 byte 有效数据（描述符声明 2 bytes，固件只认第一个）
+类型:        Feature (Data, Var, Abs)
+描述符位置:  偏移 0x2C0–0x2D8
 ```
 
-**实现**：先读出来 dump 看看值，如果能写再扩展为可控项。
+**分析结果**（2026-07-23，更新于同日）：
+- Usage 0x52 = **Input Mode / Device Mode**，符合 Microsoft PTP 规范
+  - 0 = Mouse mode（多点触控关闭，PTP 报表降至 ~7/s）
+  - 3 = Precision Touchpad mode（多点触控正常，PTP 报表 ~100/s）
+- GET_FEATURE：不支持（EINVAL），所有 buffer 大小均失败
+- SET_FEATURE：**有效！但必须用 1 字节数据（2 字节 buffer: [0x03, mode]）**
+  - 3 字节 buffer（[0x03, a, b]）固件**静默忽略**，所有大小均返回成功但无效果
+  - 描述符声明 Report Count 2 但固件只认第一个字段，与 Elan 0x300b 完全一致
+- 内核 hid-multitouch 在初始化时将 mode 设为 3（PTP）
 
-**预计**：先 dump，后续决定。
+**API 接口**：
+```bash
+sudo python3 test/probe_03.py mouse   # 切换到鼠标模式
+sudo python3 test/probe_03.py ptp     # 切换到 PTP 模式
+sudo python3 test/probe_03.py bench   # 对比两种模式
+```
+
+**结论**：暂不集成到 goodhaptic。Input Mode 切换在 Linux 下副作用大（mode 0 会使内核的触摸板输入设备无法正常工作），用户在需要时可用 probe 脚本。
 
 ---
 
@@ -172,16 +190,24 @@ Usage:      0x55 (Contact Count Maximum), 0x59 (Pad Type)
 
 ---
 
-#### 4.7 Report 0x0D — 固件信息
+#### 4.7 Report 0x0D — 固件命令 ✅ 已分析
 
 ```
-大小: 4 bytes，Usage: 0xC4
-推测: Device ID, Firmware Version
+Usage Page:    Vendor Defined (0xFF00)
+Usage:         0xC4
+大小:          4 bytes (Report Count 4 × Report Size 8)
+类型:          Feature (Data, Var, Abs)
+描述符位置:    偏移 0x298
 ```
 
-**实现**：读 4 bytes，在「关于」展示。
+**分析结果**（2026-07-23）：
+- GET_FEATURE：不支持（EINVAL，所有 buffer 大小均失败）
+- SET_FEATURE：成功（所有 buffer 大小 2–6），但无可见效果
+- 结论：0x0D 不是查询接口，是**固件命令写入入口**（可能用于固件更新/配置下发）
+- 固件版本信息实际来源：`/sys/class/input/inputN/id/version`（`0100` = v1.00），与 USB descriptor `bcdDevice=1.00` 一致
+- GUI 数据部分已通过 sysfs 直接读取并展示固件版本
 
-**预计**：15 分钟。
+**结论**：不在 goodhaptic 中操作 0x0D（涉及固件写入，风险高）。固件版本已通过 sysfs 读取显示。
 
 ---
 

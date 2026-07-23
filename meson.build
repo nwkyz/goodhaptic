@@ -1,7 +1,7 @@
 project(
   'goodhaptic',
   'c',
-  version : '1.0'
+  version : '1.1'
 )
 
 gtk = dependency('gtk4')
@@ -15,6 +15,7 @@ conf_data = configuration_data()
 conf_data.set_quoted('GETTEXT_PACKAGE', 'goodhaptic')
 conf_data.set_quoted('LOCALEDIR', localedir)
 conf_data.set_quoted('libexecdir', libexecdir)
+conf_data.set_quoted('PACKAGE_VERSION', meson.project_version())
 configure_file(
   input: 'i18n-config.h.in',
   output: 'i18n-config.h',

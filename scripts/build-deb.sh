@@ -8,6 +8,13 @@ BUILD_DIR="$PROJECT_DIR/deb-build"
 
 cd "$PROJECT_DIR"
 
+# Sync version from meson.build → debian/changelog
+VERSION=$(grep -oP "version\s*:\s*'\K[^']+" meson.build)
+if [ -n "$VERSION" ] && ! grep -q "($VERSION-" debian/changelog; then
+    sed -i "1s/(.*)/($VERSION-1)/" debian/changelog
+    echo "Synced debian/changelog to version $VERSION"
+fi
+
 # Clean previous build output and staging area
 rm -rf "$BUILD_DIR" debian/goodhaptic debian/files debian/.debhelper
 mkdir -p "$BUILD_DIR"
@@ -19,7 +26,7 @@ dpkg-buildpackage -b -us -uc
 
 # Move all generated artifacts from the parent directory into deb-build/
 shopt -s nullglob
-artifacts=("$PROJECT_DIR"/../goodhaptic_*)
+artifacts=("$PROJECT_DIR"/../goodhaptic_* "$PROJECT_DIR"/../goodhaptic-*)
 if [ ${#artifacts[@]} -gt 0 ]; then
     mv "${artifacts[@]}" "$BUILD_DIR/"
 fi

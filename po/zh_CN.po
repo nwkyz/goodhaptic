@@ -109,7 +109,7 @@ msgstr "点击板"
 
 #: src/window.c:624
 msgid "Precision Touchpad"
-msgstr "精确式触摸板"
+msgstr "精确触控板"
 
 #: src/window.c:625
 msgid "未知"
@@ -182,3 +182,82 @@ msgstr "状态监控"
 #: src/window.c:1345
 msgid "实时触摸位置、压力与按键状态"
 msgstr "实时触摸位置、压力与按键状态"
+
+#: src/window.c:195
+msgid "触控板模式"
+msgstr "触控板模式"
+
+#: src/window.c:197
+msgid "选择硬件输入模式"
+msgstr "选择硬件输入模式"
+
+#: src/window.c:201
+msgid "精确触控板"
+msgstr "精确触控板"
+
+#: src/window.c:203
+msgid "鼠标"
+msgstr "鼠标"
+
+#: src/window.c:233
+msgid "<b>触控板模式</b>"
+msgstr "<b>触控板模式</b>"
+
+#: src/window.c:240
+msgid ""
+"<b>精确触控板</b>\n"
+"• 5 指多点触控\n"
+"• 手势支持（滚动、缩放等）\n"
+"• 触控报表率 ~100 Hz\n"
+"• 压力感应反馈"
+msgstr ""
+"<b>精确触控板</b>\n"
+"• 5 指多点触控\n"
+"• 手势支持（滚动、缩放等）\n"
+"• 触控报表率 ~100 Hz\n"
+"• 压力感应反馈"
+
+#: src/window.c:256
+msgid ""
+"<b>鼠标</b>\n"
+"• 基础鼠标功能（光标移动 + 按键）\n"
+"• 无多点触控，无手势\n"
+"• 触控报表率降至 ~7 Hz\n"
+"• 兼容旧系统"
+msgstr ""
+"<b>鼠标</b>\n"
+"• 基础鼠标功能（光标移动 + 按键）\n"
+"• 无多点触控，无手势\n"
+"• 触控报表率降至 ~7 Hz\n"
+"• 兼容旧系统"
+
+#: src/window.c advanced section
+msgid "高级"
+msgstr "高级"
+
+msgid "选择性上报 — 控制触控板上报的数据类型"
+msgstr "选择性上报 — 控制触控板上报的数据类型"
+
+msgid "选择性上报等高级选项"
+msgstr "选择性上报等高级选项"
+
+msgid "选择性上报"
+msgstr "选择性上报"
+
+msgid "请不要修改这些设置，除非你知道你在做什么。"
+msgstr "请不要修改这些设置，除非你知道你在做什么。"
+
+msgid "触摸上报"
+msgstr "触摸上报"
+
+msgid "启用触控板表面触摸数据（位置、压力）的上报。关闭后光标无法移动。"
+msgstr "启用触控板表面触摸数据（位置、压力）的上报。关闭后光标无法移动。"
+
+msgid "按键上报"
+msgstr "按键上报"
+
+msgid "启用触控板按键状态的上报。关闭后点击按键无响应。"
+msgstr "启用触控板按键状态的上报。关闭后点击按键无响应。"
+
+msgid "固件版本"
+msgstr "固件版本"

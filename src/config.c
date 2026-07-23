@@ -28,6 +28,9 @@ config_load(GoodhapticConfig *cfg)
     cfg->device[0] = '\0';
     cfg->strength  = 50;
     cfg->threshold = 2;
+    cfg->inputmode         = 3;   /* default: PTP */
+    cfg->selective_surface = 1;   /* default: on */
+    cfg->selective_button  = 1;   /* default: on */
     cfg->persist   = 1;
     cfg->stepless  = 0;
 
@@ -54,6 +57,14 @@ config_load(GoodhapticConfig *cfg)
             cfg->persist = atoi(line + 8) ? 1 : 0;
         } else if (strncmp(line, "stepless ", 9) == 0) {
             cfg->stepless = atoi(line + 9) ? 1 : 0;
+        } else if (strncmp(line, "selective_surface ", 18) == 0) {
+            cfg->selective_surface = atoi(line + 18) ? 1 : 0;
+        } else if (strncmp(line, "selective_button ", 17) == 0) {
+            cfg->selective_button = atoi(line + 17) ? 1 : 0;
+        } else if (strncmp(line, "inputmode ", 10) == 0) {
+            cfg->inputmode = atoi(line + 10);
+            if (cfg->inputmode != 0 && cfg->inputmode != 3)
+                cfg->inputmode = 3;
         }
     }
 
@@ -72,6 +83,9 @@ config_save(const GoodhapticConfig *cfg)
     fprintf(f, "device %s\n", cfg->device);
     fprintf(f, "strength %d\n", cfg->strength);
     fprintf(f, "threshold %d\n", cfg->threshold);
+    fprintf(f, "inputmode %d\n", cfg->inputmode);
+    fprintf(f, "selective_surface %d\n", cfg->selective_surface);
+    fprintf(f, "selective_button %d\n", cfg->selective_button);
     fprintf(f, "persist %d\n", cfg->persist);
     fprintf(f, "stepless %d\n", cfg->stepless);
     fclose(f);

@@ -2,3 +2,5 @@
 
 #define GETTEXT_PACKAGE @GETTEXT_PACKAGE@
 #define LOCALEDIR       @LOCALEDIR@
+#define LIBEXECDIR      @libexecdir@
+#define PACKAGE_VERSION @PACKAGE_VERSION@
