@@ -245,6 +245,17 @@ handle_command(const char *line, const char **device, GoodhapticConfig *cfg,
         return "OK\n";
     }
 
+    /* LATENCY <mode>  —  set latency mode via Report 0x07 (no config) */
+    if (strncmp(buf, "LATENCY ", 8) == 0) {
+        long val = strtol(buf + 8, &end, 10);
+        if (end > buf + 8 && *end == '\0' && (val == 0 || val == 1)) {
+            if (haptic_set_latency_mode(*device, (int)val) < 0)
+                return "ERR write failed\n";
+            return "OK\n";
+        }
+        return "ERR bad value\n";
+    }
+
     /* STEPLESS=0|1 */
     if (strncmp(buf, "STEPLESS=", 9) == 0) {
         cfg->stepless = atoi(buf + 9) ? 1 : 0;

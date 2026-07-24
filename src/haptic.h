@@ -48,6 +48,11 @@ int  haptic_set_input_mode(const char *device, int mode);
  * button:  0=no button data, 1=report button data. */
 int  haptic_set_selective_reporting(const char *device, int surface, int button);
 
+/* set latency mode via feature report 0x07.
+ * mode 0 = normal (full rate), 1 = high latency (power-save).
+ * kernel manages this automatically — manual override for diagnostics. */
+int  haptic_set_latency_mode(const char *device, int mode);
+
 /* read device capability via feature report 0x02.
  * on success fills *contact_max (max finger count) and *pad_type.
  * returns 0 on success, -1 on failure. */

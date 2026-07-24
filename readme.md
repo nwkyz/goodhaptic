@@ -20,6 +20,7 @@
 | Touchpad Mode | `0x03` Set Feature | Switch between Precision Touchpad and Mouse mode |
 | Selective Reporting | `0x05` Set Feature | Independently control touch/button data reporting |
 | Device Capability | `0x02` Get Feature | Reads maximum contact count and touchpad type |
+| Latency Mode | `0x07` Set Feature | Normal / high-latency power-save mode (diagnostic) |
 | Firmware Version | sysfs | Reads firmware version number |
 | Touch Monitor | `0x04` Input | Real-time finger position, pressure and button state |
 
@@ -171,10 +172,10 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 | 0x09 | Feature | 2 bytes | Haptic strength (0–100) | ✅ Implemented |
 | 0x03 | Feature | 2 bytes (1 effective) | Input Mode (0=Mouse 3=PTP)¹ | ✅ Implemented |
 | 0x05 | Feature | 2 bytes | Selective reporting (Surface/Button Switch) | ✅ Implemented |
-| 0x07 | Feature | 2 bytes | Latency Mode (Usage 0x60: 0=normal 1=high-power-save)³ | ⚠ Not implemented (kernel-managed) |
+| 0x07 | Feature | 2 bytes | Latency Mode (Usage 0x60: 0=normal 1=high-power-save)³ | ✅ Implemented|
 | 0x06 | Feature | 256 bytes | Vendor init blob (Usage 0xC5)⁵ | ⚠ Researched (handled by kernel) |
-| 0x0B | Feature | 66 bytes | Vendor status (Usage 0xC7) | ⚠ Researched (ignored by kernel) |
-| 0x0C | Feature | 736 bytes | Vendor config (Usage 0xC6) | ⚠ Researched (ignored by kernel) |
+| 0x0B | Feature | 66 bytes | Vendor status (Usage 0xC7)⁶ | ⚠ Researched (ignored by kernel) |
+| 0x0C | Feature | 736 bytes | Vendor config (Usage 0xC6)⁶ | ⚠ Researched (ignored by kernel) |
 | 0x0D | Feature | 4 bytes | Firmware command (Usage 0xC4)² | ⚠ Researched |
 | 0x0F | Feature | any size | Not in descriptor, read-only all zeros⁴ | ⚠ Researched |
 
@@ -185,6 +186,7 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 7. **³**: Report 0x07 is Latency Mode (Usage 0x60). 0 = normal, 1 = high-latency power-save mode (report rate drops drastically, touchpad barely usable). Managed automatically by the kernel (sets 0 at runtime, 1 during suspend) — no user-space action needed.
 8. **⁴**: Reports 0x0F–0xFF are not declared in the HID descriptor, yet GET_FEATURE succeeds for all of them, always returning all zeros. Purpose unknown; no write operations are performed.
 9. **⁵**: Report 0x06 is a Win8 initialization blob (Vendor Page 0xFF00, Usage 0xC5). The Linux kernel's `hid-multitouch` reads it automatically during probe to activate the device — no user-space intervention needed.
+10. **⁶**: Reports 0x0B (Usage 0xC7) and 0x0C (Usage 0xC6) also belong to Vendor Page 0xFF00. The kernel's `mt_input_mapping` handles them via the generic `case 0xff000000: return -1` — no special handling or input mapping. GET_FEATURE is unsupported; no user-space read path is available.
 
 ## Architecture
 

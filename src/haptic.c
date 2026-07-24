@@ -379,6 +379,43 @@ haptic_set_selective_reporting(const char *device, int surface, int button)
 
 
 /*
+ * haptic_set_latency_mode  —  set latency mode via feature report 0x07.
+ *
+ * Controls the device's reporting latency for power management.
+ *   mode 0 = Normal latency (full reporting rate)
+ *   mode 1 = High latency  (power-save, report rate drops drastically)
+ *
+ * Uses 3-byte buffer [0x07, mode, 0] (1 bit data + 15 bits const).
+ *
+ * Note: the kernel manages this automatically during runtime/suspend.
+ * This is a manual override for diagnostic purposes.
+ *
+ * Returns 0 on success, -1 on error.
+ */
+int
+haptic_set_latency_mode(const char *device, int mode)
+{
+    if (mode < 0) mode = 0;
+    if (mode > 1) mode = 1;
+
+    int fd = open(device, O_RDWR);
+    if (fd < 0) {
+        perror("open hidraw");
+        return -1;
+    }
+
+    unsigned char buf[3];
+    buf[0] = 0x07;
+    buf[1] = (unsigned char)mode;
+    buf[2] = 0;  /* padding (15 const bits) */
+
+    int ret = ioctl(fd, HIDIOCSFEATURE(sizeof(buf)), buf);
+    close(fd);
+    return ret;
+}
+
+
+/*
  * haptic_open_input  —  open hidraw device for reading input reports.
  *
  * Opens the device read-only.  The caller is responsible for closing

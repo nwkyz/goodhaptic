@@ -20,6 +20,7 @@
 | 触控板模式 | `0x03` Set Feature | 切换精确触控板 / 鼠标模式 |
 | 选择性上报 | `0x05` Set Feature | 独立控制触摸/按键数据的上报 |
 | 设备能力查询 | `0x02` Get Feature | 读取最大触摸点数和触控板类型 |
+| 延迟模式 | `0x07` Set Feature | 正常/高延迟省电模式切换（诊断用） |
 | 固件版本 | sysfs | 读取固件版本号 |
 | 触摸监控 | `0x04` Input | 实时显示手指位置、压力与按键状态 |
 
@@ -167,10 +168,10 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 | 0x09 | Feature | 2 bytes | 震动强度 (0–100) | ✅ 已实现 |
 | 0x03 | Feature | 2 bytes (1 有效) | Input Mode（0=鼠标 3=PTP）¹ | ✅ 已实现 |
 | 0x05 | Feature | 2 bytes | 选择性上报（Surface/Button Switch） | ✅ 已实现 |
-| 0x07 | Feature | 2 bytes | Latency Mode（Usage 0x60：0=正常 1=高延迟省电）³ | ⚠ 不实现（内核管理） |
+| 0x07 | Feature | 2 bytes | Latency Mode（Usage 0x60：0=正常 1=高延迟省电）³ | ✅ 已实现 |
 | 0x06 | Feature | 256 bytes | Vendor 初始化 blob（Usage 0xC5）⁵ | ⚠ 已分析（内核负责） |
-| 0x0B | Feature | 66 bytes | Vendor 状态（Usage 0xC7） | ⚠ 已分析（内核忽略） |
-| 0x0C | Feature | 736 bytes | Vendor 配置（Usage 0xC6） | ⚠ 已分析（内核忽略） |
+| 0x0B | Feature | 66 bytes | Vendor 状态（Usage 0xC7）⁶ | ⚠ 已分析（内核忽略） |
+| 0x0C | Feature | 736 bytes | Vendor 配置（Usage 0xC6）⁶ | ⚠ 已分析（内核忽略） |
 | 0x0D | Feature | 4 bytes | 固件命令（Usage 0xC4）² | ⚠ 已分析 |
 | 0x0F | Feature | any size | 未在描述符声明，只读全零⁴ | ⚠ 已分析 |
 
@@ -181,6 +182,7 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 7. **³**：Report 0x07 为 Latency Mode（Usage 0x60）。0 = 正常，1 = 高延迟省电模式（报表率骤降，触控板几乎无法使用）。内核自动管理（正常运行时设 0，suspend 时设 1），用户态无需操作。
 8. **⁴**：Report 0x0F–0xFF 均未在 HID 描述符中声明，但 GET_FEATURE 全部返回成功，数据始终为全零。用途不明，不做写入操作。
 9. **⁵**：Report 0x06 为 Win8 初始化 blob（Vendor Page 0xFF00, Usage 0xC5）。Linux 内核 `hid-multitouch` 在 probe 阶段自动读取以激活设备，无需用户态介入。
+10. **⁶**：Report 0x0B（Usage 0xC7）和 0x0C（Usage 0xC6）同属 Vendor Page 0xFF00。内核 `mt_input_mapping` 中统一走 `case 0xff000000: return -1`，不作任何特殊处理或 input 映射。GET_FEATURE 不支持，用户态无可用读取路径。
 
 ## 结构
 

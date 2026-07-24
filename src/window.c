@@ -183,6 +183,14 @@ send_selective(int surface, int button)
 }
 
 static void
+send_latency(int mode)
+{
+    char cmd[32];
+    snprintf(cmd, sizeof(cmd), "LATENCY %d\n", mode);
+    daemon_send(cmd);
+}
+
+static void
 on_threshold_changed(GObject *obj, GParamSpec *pspec, gpointer data)
 {
     AdwToggleGroup *group = ADW_TOGGLE_GROUP(obj);
@@ -603,6 +611,14 @@ on_surface_toggled(GObject *obj, GParamSpec *pspec, gpointer data)
 }
 
 static void
+on_latency_toggled(GObject *obj, GParamSpec *pspec, gpointer data)
+{
+    GtkSwitch *sw = GTK_SWITCH(obj);
+    int mode = gtk_switch_get_active(sw) ? 1 : 0;
+    send_latency(mode);
+}
+
+static void
 on_button_toggled(GObject *obj, GParamSpec *pspec, gpointer data)
 {
     GtkSwitch *sw = GTK_SWITCH(obj);
@@ -695,6 +711,22 @@ on_advanced(GSimpleAction *action, GVariant *param, gpointer data)
     adw_action_row_add_suffix(ADW_ACTION_ROW(btn_row), btn_sw);
     adw_action_row_set_activatable_widget(ADW_ACTION_ROW(btn_row), btn_sw);
     adw_preferences_group_add(group, btn_row);
+
+    /* ---- latency mode switch ---- */
+    GtkWidget *lat_sw = gtk_switch_new();
+    gtk_switch_set_active(GTK_SWITCH(lat_sw), FALSE);  /* default: normal */
+    gtk_widget_set_valign(lat_sw, GTK_ALIGN_CENTER);
+    g_signal_connect(lat_sw, "notify::active",
+                     G_CALLBACK(on_latency_toggled), NULL);
+
+    GtkWidget *lat_row = adw_action_row_new();
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(lat_row),
+        _("延迟模式"));
+    adw_action_row_set_subtitle(ADW_ACTION_ROW(lat_row),
+        _("高延迟省电模式。开启后触控板报表率骤降，几乎无法使用。仅用于诊断。"));
+    adw_action_row_add_suffix(ADW_ACTION_ROW(lat_row), lat_sw);
+    adw_action_row_set_activatable_widget(ADW_ACTION_ROW(lat_row), lat_sw);
+    adw_preferences_group_add(group, lat_row);
 
     adw_preferences_page_add(page, group);
 

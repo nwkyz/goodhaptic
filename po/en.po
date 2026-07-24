@@ -260,5 +260,11 @@ msgstr "Button reporting"
 msgid "启用触控板按键状态的上报。关闭后点击按键无响应。"
 msgstr "Enable touchpad button state reporting. Clicks will not register when disabled."
 
+msgid "延迟模式"
+msgstr "Latency mode"
+
+msgid "高延迟省电模式。开启后触控板报表率骤降，几乎无法使用。仅用于诊断。"
+msgstr "High-latency power-save mode. Report rate drops drastically when enabled, making the touchpad barely usable. Diagnostic use only."
+
 msgid "固件版本"
 msgstr "Firmware version"
