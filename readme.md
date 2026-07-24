@@ -171,10 +171,10 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 | 0x09 | Feature | 2 bytes | Haptic strength (0–100) | ✅ Implemented |
 | 0x03 | Feature | 2 bytes (1 effective) | Input Mode (0=Mouse 3=PTP)¹ | ✅ Implemented |
 | 0x05 | Feature | 2 bytes | Selective reporting (Surface/Button Switch) | ✅ Implemented |
-| 0x07 | Feature | 2 bytes | Unknown purpose (renders touchpad unusable)³ | ⚠ Not implemented |
-| 0x06 | Feature | 256 bytes | Vendor configuration data | ⏳ Pending |
-| 0x0B | Feature | 66 bytes | Vendor status data | ⏳ Pending |
-| 0x0C | Feature | 736 bytes | Vendor calibration data | ⏳ Pending |
+| 0x07 | Feature | 2 bytes | Latency Mode (Usage 0x60: 0=normal 1=high-power-save)³ | ⚠ Not implemented (kernel-managed) |
+| 0x06 | Feature | 256 bytes | Vendor init blob (Usage 0xC5)⁵ | ⚠ Researched (handled by kernel) |
+| 0x0B | Feature | 66 bytes | Vendor status (Usage 0xC7) | ⚠ Researched (ignored by kernel) |
+| 0x0C | Feature | 736 bytes | Vendor config (Usage 0xC6) | ⚠ Researched (ignored by kernel) |
 | 0x0D | Feature | 4 bytes | Firmware command (Usage 0xC4)² | ⚠ Researched |
 | 0x0F | Feature | any size | Not in descriptor, read-only all zeros⁴ | ⚠ Researched |
 
@@ -182,8 +182,9 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 4. **Approach**: Write feature report + data to `/dev/hidrawN`; the hardware responds in real time
 5. **¹**: Report 0x03's HID descriptor declares 2 Input Mode fields (Report Size 8 × Report Count 2), but the firmware only respects the first byte. Writing 1 data byte (`[0x03, mode]`) works; 2 bytes (`[0x03, a, b]`) are silently ignored. This matches the Elan 0x300b quirk exactly ([kernel fix](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=73e7d63efb4d774883a338997943bfa59e127085))
 6. **²**: Report 0x0D GET_FEATURE is unsupported (EINVAL). SET_FEATURE succeeds but serves as a firmware command write entry, not readable. Firmware version is read from `/sys/class/input/inputN/id/version`, not via HID report.
-7. **³**: Report 0x07 — writing value 1 renders the touchpad nearly unusable (cursor barely moves, every touch triggers a click). Removed from code entirely.
+7. **³**: Report 0x07 is Latency Mode (Usage 0x60). 0 = normal, 1 = high-latency power-save mode (report rate drops drastically, touchpad barely usable). Managed automatically by the kernel (sets 0 at runtime, 1 during suspend) — no user-space action needed.
 8. **⁴**: Reports 0x0F–0xFF are not declared in the HID descriptor, yet GET_FEATURE succeeds for all of them, always returning all zeros. Purpose unknown; no write operations are performed.
+9. **⁵**: Report 0x06 is a Win8 initialization blob (Vendor Page 0xFF00, Usage 0xC5). The Linux kernel's `hid-multitouch` reads it automatically during probe to activate the device — no user-space intervention needed.
 
 ## Architecture
 

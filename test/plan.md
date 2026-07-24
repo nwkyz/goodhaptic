@@ -177,16 +177,21 @@ sudo python3 test/probe_03.py bench   # 对比两种模式
 
 ---
 
-#### 4.6 Report 0x0B — Vendor 状态
+#### 4.6 Report 0x0B — Vendor 状态 ⚠ 已分析
 
 ```
-大小: 66 bytes，Usage: 0xC7
-推测: 运行时状态、诊断数据
+Usage Page:    Vendor Defined (0xFF00)
+Usage:         0xC7
+大小:          66 bytes (Report Count 66 × Report Size 8)
+类型:          Feature (Data, Var, Abs)
 ```
 
-**实现**：周期性读取 66 bytes，dump 分析变化规律。
+**分析结果**（2026-07-23）：
+- GET_FEATURE：不支持（EINVAL）
+- 内核 `mt_input_mapping` 中走 `case 0xff000000: return -1`，无特殊处理
+- 与 0x06/0x0C/0x0D 同为 Vendor Page usages，内核不映射为输入
 
-**预计**：先 dump 分析，1-2 小时。
+**结论**：不实现。内核忽略，用户态无可用路径。
 
 ---
 
@@ -213,32 +218,42 @@ Usage:         0xC4
 
 ### P2 — 需要逆向（Vendor Page 0xFF00）
 
-#### 4.8 Report 0x0C — 校准数据（736 bytes）
+#### 4.8 Report 0x0C — Vendor 大块配置 ⚠ 已分析
 
 ```
-大小: 736 bytes，Usage: 0xC6
-推测: 压力曲线、传感器校准、Haptic 调校参数、固件配置
+Usage Page:    Vendor Defined (0xFF00)
+Usage:         0xC6
+大小:          736 bytes (Report Count 736 × Report Size 8)
+类型:          Feature (Data, Var, Abs)
 ```
 
-**实现路径**：
-1. 读取当前 736 bytes 保存为 baseline
-2. 在不同强度/阈值设置下再读，对比差异找字段
-3. 参考 GXTP5100 Windows 驱动行为对照
+**分析结果**（2026-07-23）：
+- GET_FEATURE：不支持（EINVAL）
+- 内核 `mt_input_mapping` 中走 `case 0xff000000: return -1`，无特殊处理
+- 与 0x06/0x0B/0x0D 同为 Vendor Page usages，内核不映射为输入
 
-**预计**：需要持续逆向分析。
+**结论**：不实现。内核忽略，用户态无可用路径。
 
 ---
 
-#### 4.9 Report 0x06 — Vendor 命令（256 bytes）
+#### 4.9 Report 0x06 — Win8 初始化 Blob ✅ 已分析
 
 ```
-大小: 256 bytes，Usage: 0xC5
-推测: 命令缓冲区、配置、固件接口
+Usage Page:    Vendor Defined (0xFF00)
+Usage:         0xC5
+大小:          256 bytes (Report Count 256 × Report Size 8)
+类型:          Feature (Data, Var, Abs)
+描述符位置:    偏移 0x280
 ```
 
-**实现路径**：同 0x0C，配合 0x0E 双向通道分析。
+**分析结果**（2026-07-23）：
+- GET_FEATURE：支持（257 bytes），返回 256 字节 blob，数据稳定不变化
+- SET_FEATURE：支持
+- 通过第三方 GT7868Q 驱动和 Linux 内核源码确认：此 report 为 **Win8 初始化 blob**
+- 内核 `hid-multitouch` 在 probe 时通过 `mt_feature_mapping` → `case 0xff0000c5` → `mt_get_feature()` **自动读取**，用于激活/启用设备
+- 内核对其他 Vendor Page usages（0xC4/0xC6/0xC7）均无特殊处理，统一走 `case 0xff000000: return -1`
 
-**预计**：需要持续逆向分析。
+**结论**：不实现。内核已完成初始化读取，用户态无需参与。
 
 ---
 

@@ -167,10 +167,10 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 | 0x09 | Feature | 2 bytes | 震动强度 (0–100) | ✅ 已实现 |
 | 0x03 | Feature | 2 bytes (1 有效) | Input Mode（0=鼠标 3=PTP）¹ | ✅ 已实现 |
 | 0x05 | Feature | 2 bytes | 选择性上报（Surface/Button Switch） | ✅ 已实现 |
-| 0x07 | Feature | 2 bytes | 用途不明（写入后触控板几乎无法使用）³ | ⚠ 不实现 |
-| 0x06 | Feature | 256 bytes | Vendor 配置数据 | ⏳ 待分析 |
-| 0x0B | Feature | 66 bytes | Vendor 状态数据 | ⏳ 待分析 |
-| 0x0C | Feature | 736 bytes | Vendor 校准数据 | ⏳ 待分析 |
+| 0x07 | Feature | 2 bytes | Latency Mode（Usage 0x60：0=正常 1=高延迟省电）³ | ⚠ 不实现（内核管理） |
+| 0x06 | Feature | 256 bytes | Vendor 初始化 blob（Usage 0xC5）⁵ | ⚠ 已分析（内核负责） |
+| 0x0B | Feature | 66 bytes | Vendor 状态（Usage 0xC7） | ⚠ 已分析（内核忽略） |
+| 0x0C | Feature | 736 bytes | Vendor 配置（Usage 0xC6） | ⚠ 已分析（内核忽略） |
 | 0x0D | Feature | 4 bytes | 固件命令（Usage 0xC4）² | ⚠ 已分析 |
 | 0x0F | Feature | any size | 未在描述符声明，只读全零⁴ | ⚠ 已分析 |
 
@@ -178,8 +178,9 @@ sudo apt install ./deb-build/goodhaptic_1.0-1_amd64.deb
 4. **方案**：向 `/dev/hidrawN` 写入 feature report + 数据，硬件实时响应
 5. **¹**：Report 0x03 的 HID 描述符声明了 2 个 Input Mode 字段（Report Size 8 × Report Count 2），但固件仅响应第一个字节。写入 1 字节数据（`[0x03, mode]`）有效，2 字节（`[0x03, a, b]`）会被静默忽略。此行为与 Elan 0x300b 完全一致（[内核修复](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=73e7d63efb4d774883a338997943bfa59e127085)）
 6. **²**：Report 0x0D 的 GET_FEATURE 不支持（EINVAL），SET_FEATURE 成功但为固件命令写入入口，不可读。固件版本信息来自 `/sys/class/input/inputN/id/version`，非 HID report。
-7. **³**：Report 0x07 写入值 1 后触控板几乎无法使用（光标难以移动，每次触碰触发点击），已从代码中完全移除。
+7. **³**：Report 0x07 为 Latency Mode（Usage 0x60）。0 = 正常，1 = 高延迟省电模式（报表率骤降，触控板几乎无法使用）。内核自动管理（正常运行时设 0，suspend 时设 1），用户态无需操作。
 8. **⁴**：Report 0x0F–0xFF 均未在 HID 描述符中声明，但 GET_FEATURE 全部返回成功，数据始终为全零。用途不明，不做写入操作。
+9. **⁵**：Report 0x06 为 Win8 初始化 blob（Vendor Page 0xFF00, Usage 0xC5）。Linux 内核 `hid-multitouch` 在 probe 阶段自动读取以激活设备，无需用户态介入。
 
 ## 结构
 

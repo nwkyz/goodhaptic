@@ -12,6 +12,9 @@ debian/.debhelper/
 debian/*.debhelper.log
 debian/*.substvars
 
+# Extra Files
+extra/
+
 # Editors / OS
 .vscode/
 *~
